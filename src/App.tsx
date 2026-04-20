@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dashboard } from './components/Dashboard';
 import { MachineCard } from './components/MachineCard';
 import { WorkoutLogger } from './components/WorkoutLogger';
+import { WorkoutHistory } from './components/WorkoutHistory';
 import { AICoach } from './components/AICoach';
 import { RoutineSelector } from './components/RoutineSelector';
 import { RoutineDetail } from './components/RoutineDetail';
@@ -10,20 +11,21 @@ import { ActiveSession } from './components/ActiveSession';
 import { MACHINES } from './constants';
 import { Machine, Exercise, Routine } from './types';
 import { useLocalStorage } from './lib/utils';
-import { LayoutDashboard, Dumbbell, History, Bot, X, Check, BookOpen, LogIn, LogOut, User as UserIcon } from 'lucide-react';
+import { LayoutDashboard, Dumbbell, History, Bot, X, Check, BookOpen, LogIn, LogOut, User as UserIcon, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, googleProvider, db, handleFirestoreError } from './lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
 import { collection, onSnapshot, addDoc, query, orderBy, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'dash' | 'routines' | 'log' | 'coach' | 'machines'>('dash');
+  const [activeTab, setActiveTab] = useState<'dash' | 'routines' | 'history' | 'coach' | 'machines'>('dash');
   const [workouts, setWorkouts] = useLocalStorage<Exercise[]>('gym-pulse-workouts', []);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
   const [activeSessionRoutine, setActiveSessionRoutine] = useState<Routine | null>(null);
+  const [showLogger, setShowLogger] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -97,13 +99,14 @@ export default function App() {
     } else {
       setWorkouts([...workouts, exercise]);
     }
-    setActiveTab('dash');
+    setActiveTab('history');
+    setShowLogger(false);
   };
 
   const tabs = [
     { id: 'dash', label: 'Inicio', icon: LayoutDashboard },
     { id: 'routines', label: 'Rutinas', icon: BookOpen },
-    { id: 'log', label: 'Log', icon: History },
+    { id: 'history', label: 'Bitácora', icon: History },
     { id: 'coach', label: 'Coach', icon: Bot },
   ] as const;
 
@@ -185,7 +188,24 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'log' && <WorkoutLogger onSave={handleSaveWorkout} recentWorkouts={workouts} />}
+        {activeTab === 'history' && (
+          <div className="space-y-6">
+            <div className="flex justify-end">
+               <button 
+                 onClick={() => setShowLogger(!showLogger)}
+                 className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl"
+               >
+                 {showLogger ? <History size={14} /> : <Plus size={14} />}
+                 {showLogger ? 'Ver Bitácora' : 'Registro Manual'}
+               </button>
+            </div>
+            {showLogger ? (
+               <WorkoutLogger onSave={handleSaveWorkout} recentWorkouts={workouts} />
+            ) : (
+               <WorkoutHistory workouts={workouts} />
+            )}
+          </div>
+        )}
         {activeTab === 'coach' && <AICoach />}
       </main>
 

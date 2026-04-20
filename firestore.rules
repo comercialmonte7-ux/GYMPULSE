@@ -31,11 +31,12 @@ service cloud.firestore {
     }
 
     function isValidWorkout(data) {
-      return data.keys().hasAll(['userId', 'machineId', 'date', 'sets']) &&
+      return data.keys().hasAll(['userId', 'machineId', 'name', 'date', 'sets', 'createdAt']) &&
              data.userId == request.auth.uid &&
-             data.machineId is string && data.machineId.size() <= 100 &&
+             data.machineId is string &&
+             data.name is string &&
              data.date is string &&
-             data.sets is list && data.sets.size() <= 20; // Bound the array size
+             data.sets is list && data.sets.size() <= 30;
     }
 
     // 2. Resource Match Blocks

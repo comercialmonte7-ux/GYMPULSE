@@ -22,6 +22,8 @@
         "machineId": { "type": "string" },
         "name": { "type": "string" },
         "date": { "type": "string", "format": "date-time" },
+        "duration": { "type": "number", "description": "Duration in seconds" },
+        "routineName": { "type": "string" },
         "sets": {
           "type": "array",
           "items": {

@@ -369,5 +369,22 @@ export const ROUTINES: Routine[] = [
       { machineId: 'bicycle', sets: 1, reps: '10 min', note: 'Aumenta la resistencia cada 2 min' },
       { machineId: 'treadmill', sets: 1, reps: '5 min', note: 'Trote ligero' }
     ]
+  },
+  {
+    id: 'advanced-athlete-adapt',
+    name: 'Adaptación Avanzada (Ciclistas/Runners)',
+    description: 'Sesión de 80 min para deportistas constantes. Fortalece todos los grupos musculares, enfocándose en potencia y estabilidad para mejorar en el asfalto o la bici.',
+    type: 'adaptacion',
+    target: 'general',
+    exercises: [
+      { machineId: 'leg-press', sets: 3, reps: '10-12', note: 'Potencia base piernas' },
+      { machineId: 'lat-pulldown', sets: 3, reps: '12', note: 'Tracción espalda superior' },
+      { machineId: 'chest-press', sets: 3, reps: '12', note: 'Empuje tren superior' },
+      { machineId: 'leg-curl', sets: 3, reps: '12-15', note: 'Vital para prevenir lesiones de rodilla' },
+      { machineId: 'rowing-machine', sets: 3, reps: '12', note: 'Postura y espalda media' },
+      { machineId: 'shoulder-press', sets: 3, reps: '12' },
+      { machineId: 'bodyweight-squats', sets: 3, reps: '20', note: 'Movilidad funcional' },
+      { machineId: 'plank', sets: 3, reps: '60 seg', note: 'Core sólido para estabilidad' }
+    ]
   }
 ];

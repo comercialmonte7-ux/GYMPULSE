@@ -30,6 +30,8 @@ export interface Exercise {
   name: string;
   sets: Set[];
   date: string;
+  duration?: number; // Total seconds
+  routineName?: string;
 }
 
 export interface Set {

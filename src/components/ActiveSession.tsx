@@ -149,9 +149,11 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
         machineId: exerciseList[index].machineId,
         name: machine?.name || 'Ejercicio',
         date: new Date().toISOString(),
+        duration: exerciseTimer, // Capture time spent
+        routineName: routine.name,
         sets: Array.from({ length: exerciseList[index].sets }).map(() => ({
           reps: parseInt(exerciseList[index].reps) || 0,
-          weight: 0, // Could be enhanced later to allow input
+          weight: 0,
           completed: true
         }))
       };
