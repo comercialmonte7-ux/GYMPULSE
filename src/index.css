@@ -38,3 +38,11 @@
 .label-caps {
   @apply text-[10px] font-bold uppercase tracking-widest text-text-muted;
 }
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -190,7 +190,7 @@ export default function App() {
       </main>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md border border-slate-200 p-1.5 flex gap-1 rounded-full shadow-2xl shadow-slate-200/50 z-50">
+      <nav className="fixed bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-auto bg-white/80 backdrop-blur-md border border-slate-200 p-1.5 flex gap-1 rounded-full shadow-2xl shadow-slate-200/50 z-50">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -198,12 +198,12 @@ export default function App() {
                 setActiveTab(tab.id);
                 if (tab.id !== 'routines') setSelectedRoutine(null);
             }}
-            className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold uppercase text-[10px] tracking-widest transition-all ${
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-full font-black uppercase text-[10px] tracking-widest transition-all ${
               activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
             }`}
           >
             <tab.icon size={18} />
-            <span className="hidden md:inline">{tab.label}</span>
+            <span className="hidden lg:inline">{tab.label}</span>
           </button>
         ))}
       </nav>

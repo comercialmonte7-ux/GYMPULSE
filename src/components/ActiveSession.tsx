@@ -185,11 +185,11 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
   );
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white flex flex-col md:flex-row h-full">
-      {/* Exercise Selector / History (Sidebar on Desktop, Bottom Sheet feel on Mobile logic) */}
-      <div className="w-full md:w-80 border-r border-slate-100 flex flex-col h-full bg-slate-50/50">
-        <div className="p-6 border-b border-slate-100 bg-white">
-            <div className="flex justify-between items-center mb-4">
+    <div className="fixed inset-0 z-[100] bg-white flex flex-col md:flex-row h-full overflow-hidden">
+      {/* Exercise Selector / History */}
+      <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-100 flex flex-col bg-slate-50/50 shrink-0 max-h-[30vh] md:max-h-full">
+        <div className="p-4 md:p-6 border-b border-slate-100 bg-white">
+            <div className="flex justify-between items-center mb-2 md:mb-4">
                 <button onClick={onClose} className="p-2 -ml-2 text-slate-400 hover:text-slate-900 transition-colors">
                     <ArrowLeft size={20} />
                 </button>
@@ -198,11 +198,10 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                     <span className="text-xs font-black tabular-nums">{formatTime(sessionTimer)}</span>
                 </div>
             </div>
-            <h2 className="text-[10px] font-black uppercase text-indigo-400 tracking-[0.2em] mb-1">Ruta de Entrenamiento</h2>
-            <h1 className="text-sm font-extrabold text-slate-900 uppercase truncate">{routine.name}</h1>
+            <h1 className="text-xs md:text-sm font-extrabold text-slate-900 uppercase truncate pr-10">{routine.name}</h1>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 overflow-x-auto md:overflow-y-auto p-2 md:p-4 flex md:flex-col gap-2 no-scrollbar">
             {exerciseList.map((ex, idx) => {
                 const exMachine = MACHINES.find(m => m.id === ex.machineId);
                 const isCurrent = currentStep === idx;
@@ -212,50 +211,49 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                     <button
                         key={idx}
                         onClick={() => handleExerciseChange(idx)}
-                        className={`w-full text-left p-4 rounded-2xl transition-all border flex items-center gap-4 ${
+                        className={`inline-flex md:flex items-center gap-3 p-3 md:p-4 rounded-2xl transition-all border shrink-0 min-w-[200px] md:min-w-0 ${
                             isCurrent 
                             ? 'bg-white border-indigo-200 shadow-lg shadow-indigo-100/50 scale-[1.02]' 
                             : 'bg-transparent border-transparent hover:bg-slate-100'
                         }`}
                     >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 font-black text-xs ${
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 font-black text-[10px] ${
                             isCompleted 
                             ? 'bg-emerald-500 border-emerald-500 text-white' 
                             : isCurrent ? 'border-indigo-600 text-indigo-600' : 'border-slate-200 text-slate-400'
                         }`}>
-                            {isCompleted ? <CheckCircle2 size={16} /> : idx + 1}
+                            {isCompleted ? <CheckCircle2 size={14} /> : idx + 1}
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h4 className={`text-sm font-black truncate uppercase tracking-tighter ${isCurrent ? 'text-indigo-900' : 'text-slate-600'}`}>
+                        <div className="flex-1 min-w-0 text-left">
+                            <h4 className={`text-[10px] md:text-xs font-black truncate uppercase tracking-tighter ${isCurrent ? 'text-indigo-900' : 'text-slate-600'}`}>
                                 {exMachine?.name}
                             </h4>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase">{ex.sets} SERIES × {ex.reps}</p>
+                            <p className="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase">{ex.sets} SERIES × {ex.reps}</p>
                         </div>
                     </button>
                 );
             })}
 
             <button 
-                onClick={() => setIsSessionPaused(!isSessionPaused)}
-                className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest mt-6 ${
-                    isSessionPaused 
-                    ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-100'
-                    : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
-                }`}
-            >
-                {isSessionPaused ? <Play size={16} fill="white" /> : <Pause size={16} fill="currentColor" />}
-                {isSessionPaused ? 'Reanudar Todo' : 'Pausar Entrenamiento'}
-            </button>
-
-            <button 
                 onClick={() => setShowAddModal(true)}
-                className="w-full p-4 rounded-2xl border-2 border-dashed border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest mt-2"
+                className="inline-flex md:flex items-center justify-center gap-2 p-3 md:p-4 rounded-2xl border-2 border-dashed border-slate-200 text-slate-400 hover:text-indigo-600 transition-all text-[10px] font-black uppercase tracking-widest shrink-0 min-w-[150px] md:min-w-0"
             >
-                <Plus size={16} /> Agregar Ejercicio
+                <Plus size={14} /> <span className="hidden md:inline">Agregar</span>
             </button>
         </div>
 
-        <div className="p-4 border-t border-slate-100 bg-white">
+        <div className="hidden md:block p-4 border-t border-slate-100 bg-white">
+            <button 
+                onClick={() => setIsSessionPaused(!isSessionPaused)}
+                className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest mb-2 ${
+                    isSessionPaused 
+                    ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-100'
+                    : 'bg-slate-100 border-slate-200 text-slate-600'
+                }`}
+            >
+                {isSessionPaused ? <Play size={16} fill="white" /> : <Pause size={16} fill="currentColor" />}
+                {isSessionPaused ? 'Reanudar' : 'Pausar'}
+            </button>
             <button 
                 onClick={() => onFinish(sessionExercises)}
                 className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl hover:bg-indigo-600 transition-all"
@@ -266,7 +264,7 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
       </div>
 
       {/* Dynamic Content Area */}
-      <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
+      <div className="flex-1 flex flex-col bg-white overflow-y-auto relative pb-24 md:pb-0">
         {/* Intelligent Timer Header */}
         <div className="bg-slate-900 border-b border-white/5 p-4 md:p-6 flex flex-wrap items-center justify-center gap-4 md:gap-12 sticky top-0 z-50 shadow-2xl">
             <div className="flex flex-col items-center">
@@ -327,48 +325,48 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="flex-1 overflow-y-auto p-6 md:p-12 flex flex-col items-center"
+                className="flex-1 overflow-y-auto p-4 md:p-12 flex flex-col items-center"
             >
-                <div className="max-w-xl w-full space-y-10">
-                    <div className="space-y-4">
+                <div className="max-w-xl w-full space-y-6 md:space-y-10">
+                    <div className="space-y-3 md:space-y-4 text-center md:text-left">
                         <div className="flex items-center justify-between">
                             <span className="label-caps !text-indigo-400">Objetivo {currentStep + 1} / {exerciseList.length}</span>
                             {machine && (
                                 <button 
                                     onClick={() => onShowMachineInfo(machine)}
-                                    className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2"
+                                    className="bg-indigo-50 text-indigo-600 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2"
                                 >
-                                    <Info size={14} /> Guía Pro
+                                    <Info size={14} /> <span className="hidden sm:inline">Guía Pro</span>
                                 </button>
                             )}
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">{machine?.name}</h1>
+                        <h1 className="text-3xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic leading-tight">{machine?.name}</h1>
                         
                         {/* Interactive Duration Goal */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                <div className="flex-1">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Meta de Serie</span>
-                                    <span className="text-xl font-black text-slate-900">{formatTime(currentGoal)}</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                            <div className="flex items-center gap-3 md:gap-4 bg-slate-50 p-3 md:p-4 rounded-2xl border border-slate-100">
+                                <div className="flex-1 text-left">
+                                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest block">Meta de Serie</span>
+                                    <span className="text-lg md:text-xl font-black text-slate-900">{formatTime(currentGoal)}</span>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button onClick={() => adjustGoal(-10)} className="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors text-xs font-bold">-10s</button>
-                                    <button onClick={() => adjustGoal(10)} className="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors text-xs font-bold">+10s</button>
+                                <div className="flex gap-1 md:gap-2">
+                                    <button onClick={() => adjustGoal(-10)} className="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors text-[10px] font-bold">-10s</button>
+                                    <button onClick={() => adjustGoal(10)} className="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors text-[10px] font-bold">+10s</button>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100">
-                                <div className="flex-1">
-                                    <span className="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest block">Descanso Programado</span>
-                                    <span className="text-xl font-black text-emerald-700">{formatTime(currentRestGoal)}</span>
+                            <div className="flex items-center gap-3 md:gap-4 bg-emerald-50/50 p-3 md:p-4 rounded-2xl border border-emerald-100">
+                                <div className="flex-1 text-left">
+                                    <span className="text-[8px] md:text-[10px] font-black text-emerald-600/60 uppercase tracking-widest block">Descanso Programado</span>
+                                    <span className="text-lg md:text-xl font-black text-emerald-700">{formatTime(currentRestGoal)}</span>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button onClick={() => adjustRestGoal(-10)} className="w-8 h-8 bg-white border border-emerald-200 rounded-lg flex items-center justify-center text-emerald-600 hover:bg-emerald-50 transition-colors text-xs font-bold">-10s</button>
-                                    <button onClick={() => adjustRestGoal(10)} className="w-8 h-8 bg-white border border-emerald-200 rounded-lg flex items-center justify-center text-emerald-600 hover:bg-emerald-50 transition-colors text-xs font-bold">+10s</button>
+                                <div className="flex gap-1 md:gap-2">
+                                    <button onClick={() => adjustRestGoal(-10)} className="w-8 h-8 bg-white border border-emerald-200 rounded-lg flex items-center justify-center text-emerald-600 hover:bg-emerald-50 transition-colors text-[10px] font-bold">-10s</button>
+                                    <button onClick={() => adjustRestGoal(10)} className="w-8 h-8 bg-white border border-emerald-200 rounded-lg flex items-center justify-center text-emerald-600 hover:bg-emerald-50 transition-colors text-[10px] font-bold">+10s</button>
                                 </div>
                             </div>
                         </div>
 
-                        <p className="text-lg text-slate-500 font-medium leading-relaxed italic border-l-4 border-indigo-100 pl-6">
+                        <p className="text-sm md:text-lg text-slate-500 font-medium leading-relaxed italic border-l-4 border-indigo-100 pl-4 md:pl-6 text-left">
                             "{currentDef.note || 'Enfócate en la técnica y el control.'}"
                         </p>
                     </div>
@@ -402,58 +400,58 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                     )}
 
                     {!isExerciseActive && !completedSteps.includes(currentStep) ? (
-                        <div className="bg-indigo-50 p-12 rounded-[4rem] text-center space-y-6 border border-indigo-100 cursor-pointer hover:bg-indigo-100 transition-all group scale-[1.02]" onClick={startExercise}>
-                            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-xl text-indigo-600 group-hover:scale-110 transition-transform">
-                                <Play size={48} fill="currentColor" />
+                        <div className="bg-indigo-50 p-6 md:p-12 rounded-[2.5rem] md:rounded-[4rem] text-center space-y-4 md:space-y-6 border border-indigo-100 cursor-pointer hover:bg-indigo-100 transition-all group scale-[1.02]" onClick={startExercise}>
+                            <div className="w-16 h-16 md:w-24 md:h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-xl text-indigo-600 group-hover:scale-110 transition-transform">
+                                <Play size={32} md:size={48} fill="currentColor" />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-black text-indigo-900 uppercase tracking-tighter italic">¿Listo para la serie?</h3>
-                                <p className="text-indigo-600/60 font-bold uppercase text-[10px] tracking-widest">Presiona para cronometrar tu esfuerzo</p>
+                                <h3 className="text-xl md:text-2xl font-black text-indigo-900 uppercase tracking-tighter italic">¿Listo para la serie?</h3>
+                                <p className="text-indigo-600/60 font-bold uppercase text-[8px] md:text-[10px] tracking-widest">Presiona para cronometrar tu esfuerzo</p>
                             </div>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-6 relative">
+                        <div className="grid grid-cols-2 gap-4 md:gap-6 relative">
                             {isSessionPaused && (
                                 <motion.div 
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-[3rem] flex items-center justify-center flex-col gap-4 border-2 border-dashed border-indigo-200"
+                                    className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-[2rem] md:rounded-[3rem] flex items-center justify-center flex-col gap-2 md:gap-4 border-2 border-dashed border-indigo-200"
                                 >
-                                    <Pause size={48} className="text-indigo-600 animate-pulse" />
-                                    <span className="text-sm font-black uppercase text-indigo-900 tracking-widest">Entrenamiento Pausado</span>
+                                    <Pause size={32} md:size={48} className="text-indigo-600 animate-pulse" />
+                                    <span className="text-[10px] md:text-sm font-black uppercase text-indigo-900 tracking-widest">Entrenamiento Pausado</span>
                                     <button 
                                         onClick={() => setIsSessionPaused(false)}
-                                        className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-black uppercase text-xs tracking-widest"
+                                        className="bg-indigo-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-black uppercase text-[10px] tracking-widest"
                                     >
                                         Reanudar
                                     </button>
                                 </motion.div>
                             )}
-                            <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100 relative group overflow-hidden">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full -translate-y-12 translate-x-12" />
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Series Meta</span>
-                                <span className="text-6xl font-black text-slate-900 tabular-nums">{currentDef.sets}</span>
+                            <div className="bg-slate-50 p-4 md:p-8 rounded-[2rem] md:rounded-[3rem] border border-slate-100 relative group overflow-hidden">
+                                <div className="absolute top-0 right-0 w-16 h-16 md:w-24 md:h-24 bg-indigo-500/5 rounded-full -translate-y-8 md:-translate-y-12 translate-x-8 md:translate-x-12" />
+                                <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Series Meta</span>
+                                <span className="text-4xl md:text-6xl font-black text-slate-900 tabular-nums">{currentDef.sets}</span>
                             </div>
-                            <div className="bg-indigo-600 p-8 rounded-[3rem] text-white relative group overflow-hidden shadow-2xl shadow-indigo-100">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12" />
-                                <span className="text-[10px] font-black text-indigo-200 uppercase tracking-widest block mb-1">Reps Meta</span>
-                                <span className="text-6xl font-black tabular-nums">{currentDef.reps}</span>
+                            <div className="bg-indigo-600 p-4 md:p-8 rounded-[2rem] md:rounded-[3rem] text-white relative group overflow-hidden shadow-2xl shadow-indigo-100">
+                                <div className="absolute top-0 right-0 w-16 h-16 md:w-24 md:h-24 bg-white/10 rounded-full -translate-y-8 md:-translate-y-12 translate-x-8 md:translate-x-12" />
+                                <span className="text-[8px] md:text-[10px] font-black text-indigo-200 uppercase tracking-widest block mb-1">Reps Meta</span>
+                                <span className="text-4xl md:text-6xl font-black tabular-nums">{currentDef.reps}</span>
                             </div>
                         </div>
                     )}
 
                     {isExerciseActive && (
-                        <div className="space-y-6">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] flex items-center gap-4">
+                        <div className="space-y-4 md:space-y-6">
+                            <h3 className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] flex items-center gap-4">
                                 Instrucciones Clave <div className="h-px bg-slate-100 flex-1" />
                             </h3>
-                            <div className="grid gap-4">
+                            <div className="grid gap-3 md:gap-4">
                                 {machine?.instructions.slice(0, 3).map((inst, i) => (
-                                    <div key={i} className="flex gap-6 items-center bg-white p-6 rounded-3xl border border-slate-100 hover:border-indigo-100 transition-colors group">
-                                        <div className="w-10 h-10 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center font-black text-xs shrink-0 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                                    <div key={i} className="flex gap-4 md:gap-6 items-center bg-white p-4 md:p-6 rounded-[2rem] border border-slate-100 hover:border-indigo-100 transition-colors group">
+                                        <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center font-black text-[10px] md:text-xs shrink-0 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
                                             0{i+1}
                                         </div>
-                                        <span className="text-base font-bold text-slate-700">{inst}</span>
+                                        <span className="text-sm md:text-base font-bold text-slate-700 text-left">{inst}</span>
                                     </div>
                                 ))}
                             </div>
@@ -461,11 +459,11 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                     )}
 
                     {(isExerciseActive || isResting || completedSteps.includes(currentStep)) && (
-                        <div className="pt-10 flex flex-col gap-4">
+                        <div className="pt-6 md:pt-10 flex flex-col gap-4">
                             {!completedSteps.includes(currentStep) && (
                                 <button 
                                     onClick={isResting ? startExercise : handleStopSerie}
-                                    className={`w-full py-10 rounded-[3.5rem] font-black uppercase text-xl tracking-widest transition-all shadow-2xl flex flex-col items-center justify-center gap-1 ${
+                                    className={`w-full py-6 md:py-10 rounded-[2.5rem] md:rounded-[3.5rem] font-black uppercase text-base md:text-xl tracking-widest transition-all shadow-2xl flex flex-col items-center justify-center gap-1 ${
                                         isResting
                                         ? 'bg-emerald-500 text-white shadow-emerald-200 border-b-8 border-emerald-700 active:translate-y-2'
                                         : 'bg-indigo-600 text-white shadow-indigo-200 border-b-8 border-indigo-800 hover:scale-[1.02] active:translate-y-2 active:border-b-0'
@@ -475,16 +473,16 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                                         {isResting ? (
                                             <>
                                                 EMPEZAR SIGUIENTE SERIE
-                                                <Play size={28} fill="currentColor" />
+                                                <Play size={20} md:size={28} fill="currentColor" />
                                             </>
                                         ) : (
                                             <>
                                                 STOP SERIE
-                                                <X size={28} />
+                                                <X size={20} md:size={28} />
                                             </>
                                         )}
                                     </span>
-                                    <span className="text-[10px] opacity-60 font-bold">
+                                    <span className="text-[8px] md:text-[10px] opacity-60 font-bold">
                                         {isResting ? 'EL DESCANSO SE DETENDRÁ AUTOMÁTICAMENTE' : 'LA DURACIÓN SE GUARDARÁ EN EL HISTORIAL'}
                                     </span>
                                 </button>
@@ -492,7 +490,7 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
 
                             <button 
                                 onClick={() => toggleComplete(currentStep)}
-                                className={`w-full py-6 rounded-3xl font-black uppercase text-xs tracking-[0.3em] transition-all flex items-center justify-center gap-2 ${
+                                className={`w-full py-4 md:py-6 rounded-[2rem] md:rounded-3xl font-black uppercase text-[10px] md:text-xs tracking-[0.3em] transition-all flex items-center justify-center gap-2 ${
                                     completedSteps.includes(currentStep)
                                     ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
                                     : 'bg-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white transition-colors'
@@ -510,6 +508,27 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                 </div>
             </motion.div>
         </AnimatePresence>
+
+        {/* Mobile Action Bar */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 flex gap-2 md:hidden z-[160]">
+            <button 
+                onClick={() => setIsSessionPaused(!isSessionPaused)}
+                className={`flex-1 p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest ${
+                    isSessionPaused 
+                    ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-100'
+                    : 'bg-slate-50 border-slate-200 text-slate-600'
+                }`}
+            >
+                {isSessionPaused ? <Play size={14} fill="white" /> : <Pause size={14} fill="currentColor" />}
+                {isSessionPaused ? 'Reanudar' : 'Pausar'}
+            </button>
+            <button 
+                onClick={() => onFinish(sessionExercises)}
+                className="flex-[1.5] bg-slate-900 text-white p-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl"
+            >
+                Terminar Sesión
+            </button>
+        </div>
 
         {/* Rest Timer Overlay */}
         <AnimatePresence>
