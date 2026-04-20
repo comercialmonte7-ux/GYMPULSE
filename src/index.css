@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #4f46e5; /* indigo-600 */
+  --color-primary-hover: #4338ca; /* indigo-700 */
+  --color-secondary: #f472b6; /* pink-400 */
+  --color-bg-main: #f8fafc; /* slate-50 */
+  --color-surface: #ffffff;
+  --color-border-subtle: #e2e8f0; /* slate-200 */
+  --color-text-dark: #0f172a; /* slate-900 */
+  --color-text-muted: #64748b; /* slate-500 */
+  
+  --font-sans: "Inter", "system-ui", "-apple-system", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-main text-text-dark font-sans;
+  }
+}
+
+.geometric-card {
+  @apply bg-surface rounded-2xl border border-border-subtle shadow-sm transition-all duration-300;
+}
+
+.geometric-card-hover {
+  @apply hover:shadow-lg hover:shadow-indigo-100 hover:border-primary/20;
+}
+
+.geometric-button-primary {
+  @apply bg-primary text-white rounded-xl font-bold px-6 py-3 shadow-md shadow-indigo-100 hover:bg-primary-hover active:scale-95 transition-all;
+}
+
+.geometric-button-secondary {
+  @apply bg-white text-text-dark border border-border-subtle rounded-xl font-bold px-6 py-3 hover:bg-slate-50 active:scale-95 transition-all;
+}
+
+.label-caps {
+  @apply text-[10px] font-bold uppercase tracking-widest text-text-muted;
+}
