@@ -2,18 +2,72 @@ import React from 'react';
 import { Routine } from '../types';
 import { ROUTINES } from '../constants';
 import { motion } from 'motion/react';
-import { Target, Users, Zap, ArrowRight } from 'lucide-react';
+import { Target, Users, Zap, ArrowRight, Activity, TrendingUp } from 'lucide-react';
 
 interface RoutineSelectorProps {
   onSelect: (routine: Routine) => void;
 }
 
 export const RoutineSelector: React.FC<RoutineSelectorProps> = ({ onSelect }) => {
-  const adaptacion = ROUTINES.filter(r => r.type === 'adaptacion');
-  const localizado = ROUTINES.filter(r => r.type === 'localizado');
+  const running = ROUTINES.filter(r => r.type === 'running');
+  const power = ROUTINES.filter(r => r.id === 'full-body-power' || r.id === 'advanced-athlete-adapt');
+  const isolated = ROUTINES.filter(r => r.id.startsWith('foc-'));
+  const adaptacion = ROUTINES.filter(r => r.type === 'adaptacion' && !power.some(p => p.id === r.id));
+  const localizado = ROUTINES.filter(r => r.type === 'localizado' && !power.some(p => p.id === r.id) && !isolated.some(i => i.id === r.id));
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
+      <section>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-orange-600 text-white rounded-2xl shadow-lg shadow-orange-100">
+            <Zap size={24} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Enfoque Muscular</h2>
+            <p className="text-sm text-slate-500 font-medium">Sesiones dedicadas a grupos específicos</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {isolated.map(routine => (
+            <RoutineCard key={routine.id} routine={routine} onSelect={() => onSelect(routine)} />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-100">
+            <TrendingUp size={24} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Plan Running 10K</h2>
+            <p className="text-sm text-slate-500 font-medium">Progresión de 4 semanas para consolidar distancia</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {running.map(routine => (
+            <RoutineCard key={routine.id} routine={routine} onSelect={() => onSelect(routine)} />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-100">
+            <Activity size={24} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Fuerza y Rendimiento</h2>
+            <p className="text-sm text-slate-500 font-medium">Cuerpo completo para deportistas avanzados</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {power.map(routine => (
+            <RoutineCard key={routine.id} routine={routine} onSelect={() => onSelect(routine)} />
+          ))}
+        </div>
+      </section>
+
       <section>
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 bg-indigo-600 text-white rounded-lg">

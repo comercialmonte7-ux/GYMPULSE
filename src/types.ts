@@ -19,7 +19,7 @@ export interface Routine {
   id: string;
   name: string;
   description: string;
-  type: 'adaptacion' | 'localizado';
+  type: 'adaptacion' | 'localizado' | 'running';
   target: 'general' | 'hombre' | 'mujer';
   exercises: ExerciseDefinition[];
 }

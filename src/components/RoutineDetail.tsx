@@ -85,6 +85,9 @@ export const RoutineDetail: React.FC<RoutineDetailProps> = ({ routine, onBack, o
                         </button>
                     </h4>
                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">{machine.muscleGroup}</p>
+                    {ex.note && (
+                      <p className="text-[10px] font-bold text-indigo-500 italic mt-1 max-w-[200px] md:max-w-xs">{ex.note}</p>
+                    )}
                   </div>
                 </div>
                 

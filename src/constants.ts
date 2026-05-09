@@ -288,10 +288,78 @@ export const MACHINES: Machine[] = [
         'No fuerces el cuello.',
         'Ideal para después de trabajar sentado.'
     ]
+  },
+  {
+    id: 'outdoor-running',
+    name: 'Trote en Exterior',
+    muscleGroup: 'Cardio',
+    description: 'Trote o carrera al aire libre. Ideal para ganar resistencia aeróbica real.',
+    instructions: [
+      'Busca una superficie plana o terreno controlado.',
+      'Mantén una postura erguida y hombros relajados.',
+      'Controla tu respiración (debe ser profunda y rítmica).',
+      'Usa calzado adecuado para correr.'
+    ],
+    tips: [
+      'Prioriza la cadencia sobre la zancada larga.',
+      'Mantén la vista al frente.',
+      'Hidrátate bien antes y después.'
+    ]
   }
 ];
 
 export const ROUTINES: Routine[] = [
+  {
+    id: 'running-plan-w1',
+    name: 'Plan 10K - Semana 1: Consolidación',
+    description: 'Objetivo: Estabilizar los 5km en Zona 2 y empezar a tocar los 6km suave.',
+    type: 'running',
+    target: 'general',
+    exercises: [
+      { machineId: 'outdoor-running', sets: 1, reps: '40 min', note: 'Rodaje Z2 (Conversacional). Pulso bajo.' },
+      { machineId: 'outdoor-running', sets: 1, reps: '45 min', note: 'Progresivo: 10 min Z2 + 25 min Z3 + 10 min Z2.' },
+      { machineId: 'outdoor-running', sets: 1, reps: '6 km', note: 'Largo Suave. Mantener ritmo estable 8:30-8:50.' },
+      { machineId: 'plank', sets: 3, reps: '45 seg', note: 'Core para estabilidad de carrera' }
+    ]
+  },
+  {
+    id: 'running-plan-w2',
+    name: 'Plan 10K - Semana 2: Progresión Volumen',
+    description: 'Objetivo: Aumentar el tiempo bajo tensión y consolidar los 7km.',
+    type: 'running',
+    target: 'general',
+    exercises: [
+      { machineId: 'outdoor-running', sets: 1, reps: '45 min', note: 'Z2 Recuperación activa.' },
+      { machineId: 'outdoor-running', sets: 1, reps: '50 min', note: 'Controlado: Intervalos de 8 min Z3 / 2 min Z2.' },
+      { machineId: 'outdoor-running', sets: 1, reps: '7 km', note: 'Largo Suave. El objetivo es terminar con energía.' },
+      { machineId: 'plank', sets: 3, reps: '60 seg' }
+    ]
+  },
+  {
+    id: 'running-plan-w3',
+    name: 'Plan 10K - Semana 3: Pico de Carga',
+    description: 'Objetivo: Máxima distancia antes de la descarga. Tocar los 8km.',
+    type: 'running',
+    target: 'general',
+    exercises: [
+      { machineId: 'outdoor-running', sets: 1, reps: '50 min', note: 'Todo en Zona 2 estricta.' },
+      { machineId: 'outdoor-running', sets: 1, reps: '55 min', note: 'Negative Splits: la segunda mitad más rápida que la primera.' },
+      { machineId: 'outdoor-running', sets: 1, reps: '8 km', note: 'Largo de Resistencia. Sin prisa, solo sumar KM.' },
+      { machineId: 'bodyweight-squats', sets: 3, reps: '15', note: 'Fuerza de piernas para soporte' }
+    ]
+  },
+  {
+    id: 'running-plan-w4',
+    name: 'Plan 10K - Semana 4: Descarga y Test',
+    description: 'Objetivo: Recuperar y testear los 10km o consolidar los 7km a ritmo estable.',
+    type: 'running',
+    target: 'general',
+    exercises: [
+      { machineId: 'outdoor-running', sets: 1, reps: '35 min', note: 'Suave para limpiar fatiga.' },
+      { machineId: 'outdoor-running', sets: 1, reps: '40 min', note: 'Ritmo estable 5km (Objetivo 8:15). Enfoque técnica.' },
+      { machineId: 'outdoor-running', sets: 1, reps: '10 km', note: 'EL RETO: Intenta llegar a los 10km cami-trote si es necesario, priorizando salud.' }
+    ]
+  },
   {
     id: 'home-fullbody',
     name: 'Rutina en Casa (Sin Equipo)',
@@ -385,6 +453,86 @@ export const ROUTINES: Routine[] = [
       { machineId: 'shoulder-press', sets: 3, reps: '12' },
       { machineId: 'bodyweight-squats', sets: 3, reps: '20', note: 'Movilidad funcional' },
       { machineId: 'plank', sets: 3, reps: '60 seg', note: 'Core sólido para estabilidad' }
+    ]
+  },
+  {
+    id: 'full-body-power',
+    name: 'Fuerza Total: Máquinas',
+    description: 'Sesión integral de 90 min diseñada para deportistas. Cubre piernas, brazos, pecho, hombros y espalda con alta intensidad.',
+    type: 'localizado',
+    target: 'general',
+    exercises: [
+      { machineId: 'leg-press', sets: 4, reps: '10-12', note: 'Base de potencia inferior' },
+      { machineId: 'chest-press', sets: 3, reps: '10-12', note: 'Fuerza de empuje' },
+      { machineId: 'lat-pulldown', sets: 3, reps: '12', note: 'Amplitud de espalda' },
+      { machineId: 'shoulder-press', sets: 3, reps: '12', note: 'Estabilidad de hombros' },
+      { machineId: 'bicep-curl-machine', sets: 3, reps: '15', note: 'Aislamiento de brazos' },
+      { machineId: 'rowing-machine', sets: 3, reps: '12', note: 'Grosor de espalda y bíceps' },
+      { machineId: 'leg-curl', sets: 3, reps: '15', note: 'Balance femoral' },
+      { machineId: 'plank', sets: 3, reps: '60 seg', note: 'Core para transferencia de fuerza' }
+    ]
+  },
+  {
+    id: 'foc-piernas',
+    name: 'Solo Piernas: Potencia',
+    description: 'Enfoque total en el tren inferior. Ideal para ganar fuerza base y soporte post-carrera.',
+    type: 'localizado',
+    target: 'general',
+    exercises: [
+      { machineId: 'leg-press', sets: 4, reps: '10-12', note: 'Empuje pesado' },
+      { machineId: 'leg-extension', sets: 3, reps: '15', note: 'Aislamiento de cuádriceps' },
+      { machineId: 'leg-curl', sets: 3, reps: '15', note: 'Fortalecimiento de isquios' },
+      { machineId: 'abductor-machine', sets: 3, reps: '20', note: 'Estabilidad lateral' },
+      { machineId: 'bodyweight-squats', sets: 3, reps: '20', note: 'Bombardeo final' }
+    ]
+  },
+  {
+    id: 'foc-brazos',
+    name: 'Solo Brazos: Definición',
+    description: 'Trabajo específico de bíceps y tríceps para mejorar la fuerza de agarre y soporte.',
+    type: 'localizado',
+    target: 'general',
+    exercises: [
+      { machineId: 'bicep-curl-machine', sets: 4, reps: '12-15', note: 'Control total' },
+      { machineId: 'push-ups', sets: 3, reps: '12-15', note: 'Tríceps (manos cerradas)' },
+      { machineId: 'chest-press', sets: 3, reps: '12', note: 'Empuje controlado' },
+      { machineId: 'bicep-curl-machine', sets: 3, reps: '10', note: 'Series lentas' }
+    ]
+  },
+  {
+    id: 'foc-pecho',
+    name: 'Solo Pecho: Empuje',
+    description: 'Enfoque en pectorales para mejorar la postura y la fuerza de empuje.',
+    type: 'localizado',
+    target: 'general',
+    exercises: [
+      { machineId: 'chest-press', sets: 4, reps: '10-12', note: 'Máxima contracción' },
+      { machineId: 'push-ups', sets: 4, reps: '15-20', note: 'Amplitud normal' },
+      { machineId: 'chest-press', sets: 3, reps: '15', note: 'Peso moderado, alta repetición' }
+    ]
+  },
+  {
+    id: 'foc-hombros',
+    name: 'Solo Hombros: Estabilidad',
+    description: 'Fortalece la articulación del hombro para una mejor postura y rendimiento.',
+    type: 'localizado',
+    target: 'general',
+    exercises: [
+      { machineId: 'shoulder-press', sets: 4, reps: '10-12', note: 'Control de bajada' },
+      { machineId: 'plank', sets: 3, reps: '45 seg', note: 'Estabilidad isométrica' },
+      { machineId: 'shoulder-press', sets: 3, reps: '15', note: 'Bombeo de hombros' }
+    ]
+  },
+  {
+    id: 'foc-espalda',
+    name: 'Solo Espalda: Tracción',
+    description: 'Mejora tu tracción y ensanchamiento de espalda. Vital para una buena postura.',
+    type: 'localizado',
+    target: 'general',
+    exercises: [
+      { machineId: 'lat-pulldown', sets: 4, reps: '10-12', note: 'Jalón vertical' },
+      { machineId: 'rowing-machine', sets: 4, reps: '12', note: 'Remo horizontal' },
+      { machineId: 'lat-pulldown', sets: 3, reps: '15', note: 'Control de escapulas' }
     ]
   }
 ];
