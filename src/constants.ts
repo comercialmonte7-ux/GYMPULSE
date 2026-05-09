@@ -128,6 +128,78 @@ export const MACHINES: Machine[] = [
     ]
   },
   {
+    id: 'lateral-raises',
+    name: 'Elevaciones Laterales',
+    muscleGroup: 'Hombros',
+    videoUrl: 'XHzrS6g-sX4',
+    description: 'El ejercicio clave para ganar anchura en los hombros (deltoide medio).',
+    instructions: [
+      'De pie, con una mancuerna en cada mano a los costados.',
+      'Eleva los brazos hacia los lados con una ligera flexión de codo.',
+      'Sube hasta que los brazos estén paralelos al suelo.',
+      'Baja lentamente controlando el peso.'
+    ],
+    tips: [
+      'No balancees el cuerpo.',
+      'Imagina que estás vertiendo agua de una jarra al llegar arriba.',
+      'Mantén el cuello relajado.'
+    ]
+  },
+  {
+    id: 'front-raises',
+    name: 'Elevaciones Frontales',
+    muscleGroup: 'Hombros',
+    videoUrl: '-t7fuZ0KhDA',
+    description: 'Enfocado en la parte delantera del hombro (deltoide anterior).',
+    instructions: [
+      'De pie, sujeta las mancuernas frente a tus muslos.',
+      'Eleva un brazo (o ambos) hacia adelante hasta la altura de los ojos.',
+      'Mantén una ligera flexión en el codo.',
+      'Baja de forma controlada.'
+    ],
+    tips: [
+      'Evita usar el impulso de la espalda.',
+      'Mantén el abdomen contraído.',
+      'Alternar brazos ayuda a mantener la estabilidad.'
+    ]
+  },
+  {
+    id: 'reverse-fly',
+    name: 'Pájaros (Face Pull / Posterior)',
+    muscleGroup: 'Hombros',
+    videoUrl: 'iG6Y4UshZkI',
+    description: 'Crucial para la postura y el hombro posterior.',
+    instructions: [
+      'Inclina el torso hacia adelante manteniendo la espalda recta.',
+      'Eleva las mancuernas hacia los lados como si fueran alas.',
+      'Junta las escápulas al final del movimiento.',
+      'Regresa lentamente.'
+    ],
+    tips: [
+      'Mira hacia el suelo para mantener el cuello alineado.',
+      'No dejes que los hombros suban hacia las orejas.',
+      'Controla la fase de bajada.'
+    ]
+  },
+  {
+    id: 'arnold-press',
+    name: 'Arnold Press',
+    muscleGroup: 'Hombros',
+    videoUrl: '6pXNfR4pC7g',
+    description: 'Variante de press que trabaja todas las cabezas del hombro.',
+    instructions: [
+      'Siéntate con mancuernas frente a tus hombros, palmas hacia ti.',
+      'Empuja hacia arriba mientras giras las muñecas 180 grados.',
+      'Termina con las palmas hacia adelante arriba.',
+      'Revierte el movimiento al bajar.'
+    ],
+    tips: [
+      'Mantén el movimiento fluido.',
+      'No bloquees los codos arriba.',
+      'Usa un peso que puedas controlar en todo el giro.'
+    ]
+  },
+  {
     id: 'bicep-curl-machine',
     name: 'Bicep Curl',
     muscleGroup: 'Brazos',
@@ -513,14 +585,17 @@ export const ROUTINES: Routine[] = [
   },
   {
     id: 'foc-hombros',
-    name: 'Solo Hombros: Estabilidad',
-    description: 'Fortalece la articulación del hombro para una mejor postura y rendimiento.',
+    name: 'Hombros Blindados Pro',
+    description: 'Sesión completa de 60 min. Trabaja las 3 cabezas del deltoide para un aspecto 3D y estabilidad máxima.',
     type: 'localizado',
     target: 'general',
     exercises: [
-      { machineId: 'shoulder-press', sets: 4, reps: '10-12', note: 'Control de bajada' },
-      { machineId: 'plank', sets: 3, reps: '45 seg', note: 'Estabilidad isométrica' },
-      { machineId: 'shoulder-press', sets: 3, reps: '15', note: 'Bombeo de hombros' }
+      { machineId: 'shoulder-press', sets: 4, reps: '10-12', note: 'Potencia base' },
+      { machineId: 'arnold-press', sets: 3, reps: '12', note: 'Enfoque completo' },
+      { machineId: 'lateral-raises', sets: 4, reps: '15', note: 'Bombeo lateral (anchura)' },
+      { machineId: 'front-raises', sets: 3, reps: '12', note: 'Control anterior' },
+      { machineId: 'reverse-fly', sets: 3, reps: '15', note: 'Postura y deltoide posterior' },
+      { machineId: 'plank', sets: 3, reps: '60 seg', note: 'Estabilidad de cintura escapular' }
     ]
   },
   {
