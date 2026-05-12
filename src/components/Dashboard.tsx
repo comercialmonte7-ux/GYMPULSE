@@ -75,7 +75,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
                   <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">1</div>
                   <div>
                     <p className="text-sm text-bright font-bold leading-tight">Activar Sincronización</p>
-                    <p className="text-xs text-dim mt-1">Al pulsar el botón "Vincular ahora", la aplicación envía una solicitud firmada al sistema HealthKit de iOS.</p>
+                    <p className="text-xs text-dim mt-1">Al pulsar el botón "Vincular ahora", la aplicación envía una solicitud firmada al sistema HealthKit de iOS. Si estás en la pantalla de inicio y tienes problemas para iniciar sesión, intenta abrir la app primero en Safari.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
@@ -88,8 +88,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
                 <div className="flex gap-4">
                   <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
                   <div>
-                    <p className="text-sm text-bright font-bold leading-tight">Gestión Permanente</p>
-                    <p className="text-xs text-dim mt-1">Si necesitas revocar o ampliar permisos, siempre nos encontrarás en <b>Salud &gt; Apps &gt; GymPulse</b>.</p>
+                    <p className="text-sm text-bright font-bold leading-tight">Error "Solicitud Inválida"</p>
+                    <p className="text-xs text-dim mt-1">Si ves este error, es posible que el dominio <b>{window.location.hostname}</b> necesite ser autorizado en la consola de Firebase. Contacta con soporte o abre en Safari normal para completar el login.</p>
                   </div>
                 </div>
               </div>
