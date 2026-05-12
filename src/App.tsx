@@ -104,18 +104,21 @@ export default function App() {
     };
   }, [setWorkouts]);
 
-  const handleLogin = async () => {
-    try {
-      const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const [loginLoading, setLoginLoading] = useState(false);
 
-      if (isStandalone || isMobile) {
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        await signInWithPopup(auth, googleProvider);
-      }
-    } catch (error) {
+  const handleLogin = async () => {
+    setLoginLoading(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error: any) {
       console.error("Error logging in:", error);
+      if (error.code === 'auth/popup-blocked') {
+        alert("El navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes para iniciar sesión.");
+      } else {
+        alert("Error al iniciar sesión: " + (error.message || "Intenta nuevamente"));
+      }
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -179,10 +182,15 @@ export default function App() {
             ) : (
               <button 
                 onClick={handleLogin}
-                className="flex items-center gap-2 bg-surface text-bright px-4 py-2 rounded-full border border-border-subtle hover:border-white/20 transition-all text-[10px] font-bold uppercase tracking-widest"
+                disabled={loginLoading}
+                className={`flex items-center gap-2 bg-surface text-bright px-4 py-2 rounded-full border border-border-subtle hover:border-white/20 transition-all text-[10px] font-bold uppercase tracking-widest ${loginLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <LogIn size={14} />
-                <span>Iniciar Sesión</span>
+                {loginLoading ? (
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <LogIn size={14} />
+                )}
+                <span>{loginLoading ? 'Conectando...' : 'Iniciar Sesión'}</span>
               </button>
             )}
 
