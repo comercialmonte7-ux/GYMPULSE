@@ -211,21 +211,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
               <div className="flex gap-4">
                 <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">1</div>
                 <p className="text-xs text-dim leading-relaxed">
-                  Busca la app de <span className="text-bright font-bold">Salud</span> en tu iPhone. No es necesario descargar nada extra.
+                  Abre la app de <span className="text-bright font-bold">Salud</span> de tu iPhone. No es necesario descargar nada extra.
                 </p>
               </div>
               
               <div className="flex gap-4">
                 <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">2</div>
                 <p className="text-xs text-dim leading-relaxed">
-                  Entra en <span className="text-bright font-bold">Fuentes</span> o toca tu perfil y ve a <span className="text-bright font-bold">Apps & Servicios</span>.
+                  Busca la sección de <span className="text-bright font-bold">"Fuentes"</span> o <span className="text-bright font-bold">"Datos"</span> dento de la app de Salud.
                 </p>
               </div>
               
               <div className="flex gap-4">
                 <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
                 <p className="text-xs text-dim leading-relaxed">
-                  Busca <span className="text-bright font-bold font-mono uppercase">GymPulse</span> y activa las categorías que desees compartir.
+                  Revisa si <span className="text-bright font-bold font-mono uppercase">AthlyPulse</span> aparece ahí y activa los permisos de lectura.
                 </p>
               </div>
             </div>
@@ -236,7 +236,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
                 <div>
                   <p className="text-[10px] font-bold text-bright uppercase tracking-wide mb-2 italic">Dato Importante:</p>
                   <p className="text-[11px] text-dim leading-relaxed italic opacity-80">
-                    "Al ser una aplicación web avanzada (PWA), la conexión es directa. Una vez otorgues el permiso en tu iPhone, los datos aparecerán automáticamente en tu Panel de Control."
+                    "Al ser una aplicación web avanzada (PWA), la conexión es directa. Una vez otorgues el permiso en tu iPhone desde el menú Fuentes, los datos aparecerán automáticamente aquí."
                   </p>
                 </div>
               </div>

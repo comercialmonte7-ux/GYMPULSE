@@ -63,22 +63,29 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Handle redirect result
+    let unsubWorkouts: (() => void) | undefined;
+    let isInitialAuthCheck = true;
+
+    // Handle redirect result FIRST
     getRedirectResult(auth).then((result) => {
       if (result?.user) {
-        setLoading(false);
+        setUser(result.user);
       }
     }).catch((error) => {
-      showAuthError(error);
-      setLoading(false);
+      // Don't show unauthorized domain error on initial boot if it's just a background check
+      if (error.code !== 'auth/unauthorized-domain') {
+        showAuthError(error);
+      }
+    }).finally(() => {
+      // Only set loading false here if auth listener hasn't fired yet
+      if (!isInitialAuthCheck) setLoading(false);
     });
 
-    let unsubWorkouts: (() => void) | undefined;
-
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      isInitialAuthCheck = false;
       setUser(currentUser);
       setLoading(false);
-
+      
       if (currentUser) {
         // Create or update user profile
         try {

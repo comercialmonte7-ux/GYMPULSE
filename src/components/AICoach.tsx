@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export const AICoach: React.FC = () => {
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
-    { role: 'assistant', content: 'INICIALIZANDO... Coach de IA de GymPulse en línea. Enlace con HealthKit establecido. Actualmente estoy monitoreando tus niveles de Recuperación y Esfuerzo desde tu Apple Watch. ¿Cómo puedo optimizar tu protocolo hoy?' }
+    { role: 'assistant', content: 'INICIALIZANDO... Coach de IA de AthlyPulse en línea. Enlace con HealthKit establecido. Actualmente estoy monitoreando tus niveles de Recuperación y Esfuerzo desde tu Apple Watch. ¿Cómo puedo optimizar tu protocolo hoy?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
