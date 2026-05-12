@@ -11,18 +11,22 @@ import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// Initialize Auth with high-priority persistence for PWAs
-// We prioritize IndexedDB but fallback to LocalStorage/other browser storage
+// For PWAs on iOS, initializeAuth with explicit IndexedDB is superior to standard getAuth
+// because it forces the session to be shared correctly between standalone and browser contexts
 export const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence]
 });
 
-// Explicitly ensure persistence is set to local and wait for it
+// We capture the initialization promise if available, otherwise just resolve
 export const authInitialized = (auth as any)._initializationPromise || Promise.resolve();
 
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: 'select_account' });
+googleProvider.setCustomParameters({ 
+  prompt: 'select_account',
+  // Adding specific parameters to help with PWA/Standalone context
+  display: 'touch' 
+});
 
 export interface FirestoreErrorInfo {
   error: string;
@@ -48,7 +52,7 @@ export const handleFirestoreError = (error: any, operationType: FirestoreErrorIn
         email: auth.currentUser?.email || 'none',
         emailVerified: auth.currentUser?.emailVerified || false,
         isAnonymous: auth.currentUser?.isAnonymous || false,
-        providerInfo: auth.currentUser?.providerData.map(p => ({
+        providerInfo: auth.currentUser?.providerData?.map(p => ({
           providerId: p.providerId,
           displayName: p.displayName || '',
           email: p.email || '',

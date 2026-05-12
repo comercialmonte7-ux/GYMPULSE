@@ -75,7 +75,10 @@ export default function App() {
         console.warn("Auth persistence failed:", e);
       }
 
-      if (!auth) return;
+      if (!auth) {
+        console.error("Firebase Auth instance is not available.");
+        return;
+      }
 
       // 2. Handle redirect result (for those returning from Google Login)
       try {
@@ -191,9 +194,14 @@ export default function App() {
   const handleLogin = async () => {
     setLoginLoading(true);
     try {
+      if (!auth || !googleProvider) {
+        throw { code: 'auth/argument-error', message: 'Motor de autenticación no preparado. Recarga la página.' };
+      }
+
       const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
       
       if (isStandalone) {
+        // En iOS PWA, signInWithRedirect es necesario para evitar redirecciones fallidas
         await signInWithRedirect(auth, googleProvider);
       } else {
         await signInWithPopup(auth, googleProvider);
@@ -201,7 +209,9 @@ export default function App() {
     } catch (error: any) {
       showAuthError(error);
     } finally {
-      if (!window.matchMedia('(display-mode: standalone)').matches) {
+      // Si estamos en Standalone, no quitamos el loading porque se irá de la página
+      const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
+      if (!isStandalone) {
         setLoginLoading(false);
       }
     }
