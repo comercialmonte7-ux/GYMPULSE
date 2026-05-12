@@ -88,8 +88,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
                 <div className="flex gap-4">
                   <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
                   <div>
-                    <p className="text-sm text-bright font-bold leading-tight">Error "Solicitud Inválida"</p>
-                    <p className="text-xs text-dim mt-1">Si ves este error, es posible que el dominio <b>{window.location.hostname}</b> necesite ser autorizado en la consola de Firebase. Contacta con soporte o abre en Safari normal para completar el login.</p>
+                    <p className="text-sm text-bright font-bold leading-tight">Configuración de Firebase</p>
+                    <p className="text-xs text-dim mt-1">Si aparece un error de "dominio no autorizado", debes añadir <b>{window.location.hostname}</b> en la sección de Dominios Autorizados de tu Consola de Firebase.</p>
                   </div>
                 </div>
               </div>

@@ -114,6 +114,8 @@ export default function App() {
       console.error("Error logging in:", error);
       if (error.code === 'auth/popup-blocked') {
         alert("El navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes para iniciar sesión.");
+      } else if (error.code === 'auth/unauthorized-domain') {
+        alert("DOMINIO NO AUTORIZADO: Debes añadir '" + window.location.hostname + "' a la lista de dominios autorizados en tu Consola de Firebase (Authentication > Settings).");
       } else {
         alert("Error al iniciar sesión: " + (error.message || "Intenta nuevamente"));
       }
