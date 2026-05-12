@@ -3,6 +3,7 @@ import { Exercise } from '../types';
 import { TrendingUp, Zap, Heart, Moon, ShieldCheck, Activity, ChevronRight, Info, Watch, X } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
+import firebaseConfig from '../../firebase-applet-config.json';
 
 interface DashboardProps {
   workouts: Exercise[];
@@ -89,7 +90,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
                   <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
                   <div>
                     <p className="text-sm text-bright font-bold leading-tight">Configuración de Firebase</p>
-                    <p className="text-xs text-dim mt-1">Si aparece un error de "dominio no autorizado", debes añadir <b>{window.location.hostname}</b> en la sección de Dominios Autorizados de tu Consola de Firebase.</p>
+                    <p className="text-xs text-dim mt-1">Si aparece un error de "dominio no autorizado", debes añadir <b>{window.location.hostname}</b> en la sección de Dominios Autorizados de tu Consola de Firebase en: <br/><a href={`https://console.firebase.google.com/project/${firebaseConfig.projectId}/authentication/settings`} target="_blank" rel="noreferrer" className="text-accent-recovery underline">Ir a Configuración de Firebase</a></p>
                   </div>
                 </div>
               </div>

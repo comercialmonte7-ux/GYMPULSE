@@ -44,10 +44,30 @@ export default function App() {
   const [activeSessionRoutine, setActiveSessionRoutine] = useState<Routine | null>(null);
   const [showLogger, setShowLogger] = useState(false);
 
+  const showAuthError = (error: any) => {
+    console.error("Auth Error:", error);
+    if (error.code === 'auth/popup-blocked') {
+      alert("El navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes o usa Safari fuera de la pantalla de inicio.");
+    } else if (error.code === 'auth/unauthorized-domain') {
+      alert("ERROR DE DOMINIO NO AUTORIZADO:\n\nEl dominio '" + window.location.hostname + "' no está en la lista blanca de Firebase.\n\nSOLUCIÓN:\n1. Ve a la Consola de Firebase del proyecto 'gen-lang-client-0214067559'.\n2. Ve a Authentication > Settings > Dominios Autorizados.\n3. Añade '" + window.location.hostname + "'\n4. REINICIA LA APP (cierra y abre de nuevo).");
+    } else if (error.code === 'auth/operation-not-allowed') {
+      alert("El método de inicio de sesión con Google no está habilitado en Firebase.");
+    } else if (error.code === 'auth/internal-error') {
+      alert("Error interno de Firebase. Verifica tu conexión.");
+    } else {
+      alert("Error de Autenticación (" + error.code + "): " + (error.message || "Intenta nuevamente"));
+    }
+  };
+
   useEffect(() => {
     // Handle redirect result
-    getRedirectResult(auth).catch((error) => {
-      console.error("Error with redirect login:", error);
+    getRedirectResult(auth).then((result) => {
+      if (result?.user) {
+        setLoading(false);
+      }
+    }).catch((error) => {
+      showAuthError(error);
+      setLoading(false);
     });
 
     let unsubWorkouts: (() => void) | undefined;
@@ -109,18 +129,19 @@ export default function App() {
   const handleLogin = async () => {
     setLoginLoading(true);
     try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error: any) {
-      console.error("Error logging in:", error);
-      if (error.code === 'auth/popup-blocked') {
-        alert("El navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes para iniciar sesión.");
-      } else if (error.code === 'auth/unauthorized-domain') {
-        alert("DOMINIO NO AUTORIZADO: Debes añadir '" + window.location.hostname + "' a la lista de dominios autorizados en tu Consola de Firebase (Authentication > Settings).");
+      const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
+      
+      if (isStandalone) {
+        await signInWithRedirect(auth, googleProvider);
       } else {
-        alert("Error al iniciar sesión: " + (error.message || "Intenta nuevamente"));
+        await signInWithPopup(auth, googleProvider);
       }
+    } catch (error: any) {
+      showAuthError(error);
     } finally {
-      setLoginLoading(false);
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        setLoginLoading(false);
+      }
     }
   };
 
