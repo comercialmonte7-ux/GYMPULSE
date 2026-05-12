@@ -1,122 +1,300 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Exercise } from '../types';
-import { TrendingUp, Calendar, Zap, Heart } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, Zap, Heart, Moon, ShieldCheck, Activity, ChevronRight, Info, Watch, X } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface DashboardProps {
   workouts: Exercise[];
+  onNavigate: (tab: 'dash' | 'routines' | 'history' | 'coach' | 'machines') => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ workouts }) => {
-  const chartData = workouts.slice(-10).map(w => ({
-    name: new Date(w.date).toLocaleDateString(),
-    weight: Math.max(...w.sets.map(s => s.weight), 0)
-  }));
+export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) => {
+  const [showInstructions, setShowInstructions] = useState(false);
+  // Mock performance data (In a real app, this would come from Apple Health/HealthKit)
+  const readiness = 84;
+  const recovery = 92;
+  const strain = 14.5;
+  const sleepText = "7h 45m";
 
-  const totalSets = workouts.reduce((acc, w) => acc + w.sets.length, 0);
-  const streak = workouts.length > 0 ? 5 : 0; // Simulated
+  const chartData = [
+    { name: 'Lun', recovery: 65, strain: 12 },
+    { name: 'Mar', recovery: 78, strain: 15 },
+    { name: 'Mié', recovery: 55, strain: 18 },
+    { name: 'Jue', recovery: 85, strain: 10 },
+    { name: 'Vie', recovery: 92, strain: 14 },
+    { name: 'Sáb', recovery: 88, strain: 16 },
+    { name: 'Dom', recovery: recovery, strain: strain },
+  ];
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Header */}
+    <div className="space-y-10 pb-20">
+      {/* Header with Health Status */}
       <div className="flex justify-between items-end">
         <div>
-            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Tu Progreso</h2>
-            <p className="text-slate-500 font-medium">Llevas un buen ritmo esta semana, ¡sigue así!</p>
+            <h2 className="text-3xl technical-heading text-bright tracking-tight uppercase leading-none">Panel de Control</h2>
+            <p className="label-caps !text-[10px] tracking-widest text-dim mt-2">Vista General de Telemetría Biométrica</p>
         </div>
-        <div className="bg-indigo-600 text-white p-3 rounded-2xl flex items-center gap-3 shadow-lg shadow-indigo-100">
-            <Zap size={20} fill="white" />
-            <span className="font-black text-xl leading-none">{streak}</span>
-        </div>
+        <button 
+            onClick={() => setShowInstructions(true)}
+            className="bg-accent-recovery/10 border border-accent-recovery/30 px-4 py-2 rounded-xl flex items-center gap-3 shadow-lg shadow-accent-recovery/10 hover:bg-accent-recovery/20 transition-all cursor-pointer group"
+        >
+            <div className="w-2 h-2 bg-accent-recovery rounded-full animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-accent-recovery">Apple Health: Sincronizado</span>
+            <Info size={12} className="text-accent-recovery opacity-50 group-hover:opacity-100 transition-opacity" />
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Entrenamientos', value: workouts.length, icon: Calendar, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          { label: 'Series Totales', value: totalSets, icon: Zap, color: 'text-pink-500', bg: 'bg-pink-50' },
-          { label: 'Minutos Activo', value: workouts.length * 75, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Con Partner', value: '100%', icon: Heart, color: 'text-rose-500', bg: 'bg-rose-50' },
-        ].map((stat, i) => (
-          <div key={i} className="bg-white border border-slate-100 p-6 rounded-[2rem] group hover:border-indigo-200 transition-all hover:shadow-xl hover:shadow-indigo-50/50">
-            <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 shadow-sm`}>
-              <stat.icon size={22} />
-            </div>
-            <div>
-              <span className="block text-3xl font-black text-slate-900 tracking-tighter mb-1">{stat.value}</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">{stat.label}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <AnimatePresence>
+        {showInstructions && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-surface max-w-md w-full rounded-[2.5rem] border border-border-subtle p-8 shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-6">
+                <button onClick={() => setShowInstructions(false)} className="bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white border border-slate-100 p-8 rounded-[2.5rem] h-[400px] shadow-sm hover:shadow-xl transition-all hover:border-indigo-100">
-            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-3 bg-accent-recovery/20 rounded-2xl text-accent-recovery">
+                  <Watch size={32} />
+                </div>
                 <div>
-                    <h3 className="text-lg font-black text-slate-900 leading-none mb-1">Carga Máxima</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Progreso de peso (kg)</p>
+                  <h3 className="technical-heading text-xl leading-none uppercase">Vincular Apple Watch</h3>
+                  <p className="label-caps !text-[9px] text-dim mt-2 tracking-widest">Protocolo de sincronización HealthKit</p>
+                </div>
+              </div>
+
+              <div className="space-y-6 mb-8">
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">1</div>
+                  <div>
+                    <p className="text-sm text-bright font-bold leading-tight">Activar Sincronización</p>
+                    <p className="text-xs text-dim mt-1">Al pulsar el botón "Vincular ahora", la aplicación envía una solicitud firmada al sistema HealthKit de iOS.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">2</div>
+                  <div>
+                    <p className="text-sm text-bright font-bold leading-tight">Autorización de Apple</p>
+                    <p className="text-xs text-dim mt-1">Verás una pantalla de Apple preguntando qué datos quieres compartir (HRV, Sueño, Energía). Únicamente tras este paso, GymPulse aparecerá en tu lista de Apps de Salud.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
+                  <div>
+                    <p className="text-sm text-bright font-bold leading-tight">Gestión Permanente</p>
+                    <p className="text-xs text-dim mt-1">Si necesitas revocar o ampliar permisos, siempre nos encontrarás en <b>Salud &gt; Apps &gt; GymPulse</b>.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-accent-recovery/5 border border-accent-recovery/20 p-5 rounded-2xl">
+                <div className="flex items-start gap-4">
+                  <ShieldCheck size={20} className="text-accent-recovery shrink-0" />
+                  <p className="text-[11px] text-accent-recovery font-bold leading-relaxed tracking-wide uppercase">
+                    Tus datos biométricos se procesan localmente para garantizar máxima privacidad neuromuscular.
+                  </p>
+                </div>
+              </div>
+              
+              <button 
+                onClick={() => setShowInstructions(false)}
+                className="geometric-button-primary w-full py-4 mt-8"
+              >
+                Entendido
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Recovery Ring Section */}
+      <div className="relative flex flex-col items-center justify-center pt-8 pb-4">
+        {/* Mock ring */}
+        <div className="relative w-64 h-64 flex items-center justify-center">
+            <svg className="w-full h-full transform -rotate-90">
+                <circle
+                    cx="128"
+                    cy="128"
+                    r="120"
+                    stroke="currentColor"
+                    strokeWidth="12"
+                    fill="transparent"
+                    className="text-muted/20"
+                />
+                <motion.circle
+                    cx="128"
+                    cy="128"
+                    r="120"
+                    stroke="currentColor"
+                    strokeWidth="12"
+                    strokeDasharray={2 * Math.PI * 120}
+                    initial={{ strokeDashoffset: 2 * Math.PI * 120 }}
+                    animate={{ strokeDashoffset: 2 * Math.PI * 120 * (1 - readiness/100) }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    fill="transparent"
+                    strokeLinecap="round"
+                    className="text-accent-recovery"
+                />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="label-caps mb-1">Disposición</span>
+                <span className="text-7xl technical-heading leading-none">{readiness}</span>
+                <div className="flex items-center gap-1 mt-2 text-accent-recovery">
+                    <ShieldCheck size={14} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Optimizado</span>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {/* Primary Metrics Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        <MetricCard 
+            label="Recuperación" 
+            value={`${recovery}%`} 
+            icon={<Heart size={18} className="text-accent-recovery" />} 
+            status="Alta"
+            color="text-accent-recovery"
+            tooltip="Calculado en base a tu volumen de entrenamiento y descanso"
+        />
+        <MetricCard 
+            label="Esfuerzo Diario" 
+            value={strain.toString()} 
+            icon={<Zap size={18} className="text-accent-strain" />} 
+            status="Moderado"
+            color="text-accent-strain"
+            tooltip="Esfuerzo acumulado hoy"
+        />
+        <MetricCard 
+            label="Calidad de Sueño" 
+            value={sleepText} 
+            icon={<Moon size={18} className="text-accent-sleep" />} 
+            status="Buena"
+            color="text-accent-sleep"
+            tooltip="Calidad del ciclo circadiano"
+        />
+        <MetricCard 
+            label="Bio-Disposición" 
+            value="Óptima" 
+            icon={<Activity size={18} className="text-white" />} 
+            status="En Curso"
+            color="text-white"
+            tooltip="Estado neuromuscular actual"
+        />
+      </div>
+
+      {/* Main Insight Chart */}
+      <div className="geometric-card p-6">
+        <div className="flex justify-between items-center mb-6">
+            <div>
+                <h3 className="technical-heading text-lg">Balance de Rendimiento</h3>
+                <p className="label-caps text-dim mt-1">Monitoreo de Recuperación Neuromuscular</p>
+            </div>
+            <div className="flex gap-4">
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-accent-recovery" />
+                    <span className="text-[10px] font-bold uppercase text-dim">Recurso (Recuperación)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-indigo-600 rounded-full" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Últimos 10 entrenos</span>
+                    <div className="w-2 h-2 rounded-full bg-accent-strain" />
+                    <span className="text-[10px] font-bold uppercase text-dim">Esfuerzo (Carga)</span>
                 </div>
             </div>
-            <div className="h-full pb-16">
-                <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData}>
+        </div>
+        <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData}>
                     <defs>
-                        <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.1}/>
-                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                        <linearGradient id="colorRec" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-accent-recovery)" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="var(--color-accent-recovery)" stopOpacity={0}/>
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                    <XAxis dataKey="name" hide />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} />
                     <Tooltip 
-                        contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '16px' }}
+                        contentStyle={{ backgroundColor: '#121212', border: '1px solid #222', borderRadius: '12px' }}
+                        itemStyle={{ fontSize: '10px', textTransform: 'uppercase' }}
                     />
-                    <Line 
+                    <Area 
                         type="monotone" 
-                        dataKey="weight" 
-                        stroke="#4f46e5" 
-                        strokeWidth={5} 
-                        dot={{ r: 6, fill: '#4f46e5', strokeWidth: 3, stroke: '#fff' }} 
-                        activeDot={{ r: 8, strokeWidth: 0 }}
+                        dataKey="recovery" 
+                        stroke="var(--color-accent-recovery)" 
+                        fillOpacity={1} 
+                        fill="url(#colorRec)" 
+                        strokeWidth={2}
                     />
-                    </LineChart>
-                </ResponsiveContainer>
-            </div>
-        </div>
-
-        <div className="bg-slate-900 text-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200 relative overflow-hidden flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
-            
-            <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-indigo-500 rounded-lg">
-                        <TrendingUp size={20} />
-                    </div>
-                    <h3 className="text-xs font-black text-indigo-300 uppercase tracking-widest leading-none">Insight Semanal</h3>
-                </div>
-                <p className="text-xl md:text-2xl font-extrabold leading-tight text-white italic mb-6">
-                    "Estás entrenando de forma inteligente. Tu constancia con el pectoral ha subido un 15% este mes."
-                </p>
-            </div>
-
-            <div className="relative z-10 pt-8 border-t border-white/10">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-pink-500 rounded-2xl flex items-center justify-center shrink-0">
-                        <Heart size={24} fill="white" />
-                    </div>
-                    <div>
-                        <p className="text-sm font-bold text-white leading-none mb-1">Entrenando Juntos</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Siguiente meta: 10k kg totales</p>
-                    </div>
-                </div>
-            </div>
+                     <Area 
+                        type="monotone" 
+                        dataKey="strain" 
+                        stroke="var(--color-accent-strain)" 
+                        fill="transparent" 
+                        strokeWidth={2}
+                        strokeDasharray="4 4"
+                    />
+                </AreaChart>
+            </ResponsiveContainer>
         </div>
       </div>
+
+      {/* AI Recommendation Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        onClick={() => onNavigate('coach')}
+        className="bg-accent-recovery/5 border border-accent-recovery/20 p-8 rounded-[2.5rem] relative overflow-hidden group hover:bg-accent-recovery/10 transition-all cursor-pointer border-dashed"
+      >
+        <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:scale-110 transition-transform">
+            <ShieldCheck size={80} className="text-accent-recovery" />
+        </div>
+        
+        <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-6 text-accent-recovery">
+                <TrendingUp size={20} />
+                <h4 className="technical-heading text-sm">Recomendaciones del Coach</h4>
+            </div>
+            <p className="text-2xl font-medium leading-snug max-w-xl mb-8">
+                "Basado en tu balance de hoy, te recomiendo el <span className="text-accent-recovery">Protocolo de Fase 2</span>. Tu capacidad de recuperación es óptima para alta intensidad."
+            </p>
+            <div className="flex items-center gap-4">
+                <div className="bg-bright text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    Mejora hoy <ChevronRight size={14} />
+                </div>
+                <span className="text-[10px] font-bold text-dim uppercase tracking-widest">Consulta a Coach Pulse →</span>
+            </div>
+        </div>
+      </motion.div>
     </div>
   );
 };
+
+interface MetricCardProps {
+    label: string;
+    value: string;
+    icon: React.ReactNode;
+    status: string;
+    color: string;
+    tooltip?: string;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ label, value, icon, status, color, tooltip }) => (
+    <div className="geometric-card p-5 geometric-card-hover group">
+        <div className="flex justify-between items-start mb-4">
+            <div className="p-2 bg-white/5 rounded-xl group-hover:bg-accent-recovery/10 transition-colors">
+                {icon}
+            </div>
+            <span className={`text-[9px] font-bold uppercase tracking-widest ${color}`}>{status}</span>
+        </div>
+        <span className="text-2xl technical-heading block mb-1">{value}</span>
+        <span className="label-caps !text-dim">{label}</span>
+        {tooltip && (
+            <p className="text-[8px] text-muted italic mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                {tooltip}
+            </p>
+        )}
+    </div>
+);

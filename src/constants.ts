@@ -149,7 +149,7 @@ export const MACHINES: Machine[] = [
     id: 'front-raises',
     name: 'Elevaciones Frontales',
     muscleGroup: 'Hombros',
-    videoUrl: '-t7fuZ0KhDA',
+    videoUrl: 'hVRE_09G-ow',
     description: 'Enfocado en la parte delantera del hombro (deltoide anterior).',
     instructions: [
       'De pie, sujeta las mancuernas frente a tus muslos.',
@@ -311,7 +311,7 @@ export const MACHINES: Machine[] = [
     id: 'plank',
     name: 'Plancha Abdominal',
     muscleGroup: 'Core / Abdomen',
-    videoUrl: 'TvxNkmjdhMM',
+    videoUrl: 'pSHjTRCQxIw',
     description: 'Excelente para la estabilidad y fuerza del core.',
     instructions: [
         'Apóyate en los antebrazos y las puntas de los pies.',
@@ -329,7 +329,7 @@ export const MACHINES: Machine[] = [
     id: 'leg-stretch',
     name: 'Estiramiento de Piernas',
     muscleGroup: 'Flexibilidad',
-    videoUrl: '0vX7E_m5Vj0',
+    videoUrl: '6P9XbA1-l3I',
     description: 'Estiramiento de isquiotibiales y cuádriceps.',
     instructions: [
         'De pie, dobla una rodilla y toma tu pie por detrás.',
@@ -347,7 +347,7 @@ export const MACHINES: Machine[] = [
     id: 'back-stretch',
     name: 'Estiramiento de Espalda',
     muscleGroup: 'Espalda / Postura',
-    videoUrl: 'wqh6_Qny_iI',
+    videoUrl: 'L_xrDAtykMI',
     description: 'Relaja la columna y libera tensión lumbar.',
     instructions: [
         'Posición del gato/vaca: en cuatro puntos, arquea y redondea la espalda.',
@@ -362,9 +362,64 @@ export const MACHINES: Machine[] = [
     ]
   },
   {
+    id: 'russian-twists',
+    name: 'Giros Rusos',
+    muscleGroup: 'Core / Oblicuos',
+    videoUrl: 'wkD8rjkodUI',
+    description: 'Excelente para los oblicuos y la estabilidad rotacional.',
+    instructions: [
+      'Siéntate con las rodillas dobladas y los pies ligeramente elevados.',
+      'Inclina el torso hacia atrás 45 grados.',
+      'Gira el torso de un lado a otro tocando el suelo con las manos.',
+      'Mantén el abdomen contraído en todo momento.'
+    ],
+    tips: [
+      'No muevas las piernas, solo el torso.',
+      'Si es muy fácil, sostén un peso.',
+      'Sigue las manos con la mirada.'
+    ]
+  },
+  {
+    id: 'leg-raises',
+    name: 'Elevación de Piernas',
+    muscleGroup: 'Core / Abdominal Inferior',
+    videoUrl: 'l4kQd9eWclE',
+    description: 'Enfocado en la parte baja del abdomen.',
+    instructions: [
+      'Tumbado boca arriba con las manos bajo los glúteos.',
+      'Eleva las piernas rectas hasta que estén perpendiculares al suelo.',
+      'Baja las piernas lentamente sin tocar el suelo.',
+      'Mantén la zona lumbar pegada al suelo.'
+    ],
+    tips: [
+      'Si te duele la espalda, dobla ligeramente las rodillas.',
+      'Controla la bajada, es la parte más importante.',
+      'No uses el impulso.'
+    ]
+  },
+  {
+    id: 'mountain-climbers',
+    name: 'Mountain Climbers',
+    muscleGroup: 'Core / Cardio',
+    videoUrl: 'z7apbeZ0Q_A',
+    description: 'Abdominales dinámicos que también elevan el pulso.',
+    instructions: [
+      'Posición de plancha alta con los brazos estirados.',
+      'Lleva una rodilla hacia el pecho.',
+      'Alterna piernas rápidamente simulando una carrera en el suelo.',
+      'Mantén la cadera baja.'
+    ],
+    tips: [
+      'Mantén los hombros sobre las muñecas.',
+      'No levantes el glúteo.',
+      'Respira de forma rítmica.'
+    ]
+  },
+  {
     id: 'outdoor-running',
     name: 'Trote en Exterior',
     muscleGroup: 'Cardio',
+    videoUrl: '_kGESn8GprU',
     description: 'Trote o carrera al aire libre. Ideal para ganar resistencia aeróbica real.',
     instructions: [
       'Busca una superficie plana o terreno controlado.',
@@ -376,6 +431,60 @@ export const MACHINES: Machine[] = [
       'Prioriza la cadencia sobre la zancada larga.',
       'Mantén la vista al frente.',
       'Hidrátate bien antes y después.'
+    ]
+  },
+  {
+    id: 'dead-bug',
+    name: 'Dead Bug',
+    muscleGroup: 'Core / Estabilidad',
+    videoUrl: 'g_byZe6S6xs',
+    description: 'Ejercicio de estabilidad profunda del core sin impacto.',
+    instructions: [
+      'Túmbate boca arriba con brazos extendidos al techo y rodillas dobladas a 90 grados.',
+      'Baja el brazo derecho hacia atrás y la pierna izquierda hacia adelante simultáneamente.',
+      'Mantén la espalda lumbar pegada al suelo en todo momento.',
+      'Regresa al centro y alterna de lado.'
+    ],
+    tips: [
+      'El secreto es la lentitud y el control.',
+      'No dejes que la espalda se arquee.',
+      'Respira de forma fluida.'
+    ]
+  },
+  {
+    id: 'bird-dog',
+    name: 'Bird Dog',
+    muscleGroup: 'Core / Estabilidad',
+    videoUrl: 'wiFNA3sqjCA',
+    description: 'Mejora el equilibrio y fortalece la musculatura estabilizadora de la columna.',
+    instructions: [
+      'Colócate en cuatro puntos (manos y rodillas).',
+      'Extiende el brazo derecho hacia adelante y la pierna izquierda hacia atrás.',
+      'Mantén el cuerpo en línea recta y paralelo al suelo.',
+      'Mantén 2 segundos, regresa al centro y alterna.'
+    ],
+    tips: [
+      'No levantes la pierna más arriba de la cadera.',
+      'Mantén la mirada al suelo para alinear el cuello.',
+      'Imagina que tienes una taza de agua en la espalda y no debe derramarse.'
+    ]
+  },
+  {
+    id: 'bicycle-crunches',
+    name: 'Bicycle Crunches',
+    muscleGroup: 'Core / Oblicuos',
+    videoUrl: '9FGkiQD07_M',
+    description: 'Uno de los ejercicios más efectivos para el abdomen completo.',
+    instructions: [
+      'Túmbate boca arriba con las manos tras la nuca.',
+      'Lleva el codo derecho hacia la rodilla izquierda mientras estiras la pierna derecha.',
+      'Alterna lados simulando el pedaleo de una bicicleta.',
+      'Mantén el torso elevado y gira desde la cintura.'
+    ],
+    tips: [
+      'No tires del cuello con las manos.',
+      'Toca la rodilla con el codo de forma controlada.',
+      'Extiende las piernas por completo para mayor dificultad.'
     ]
   }
 ];
@@ -594,8 +703,7 @@ export const ROUTINES: Routine[] = [
       { machineId: 'arnold-press', sets: 3, reps: '12', note: 'Enfoque completo' },
       { machineId: 'lateral-raises', sets: 4, reps: '15', note: 'Bombeo lateral (anchura)' },
       { machineId: 'front-raises', sets: 3, reps: '12', note: 'Control anterior' },
-      { machineId: 'reverse-fly', sets: 3, reps: '15', note: 'Postura y deltoide posterior' },
-      { machineId: 'plank', sets: 3, reps: '60 seg', note: 'Estabilidad de cintura escapular' }
+      { machineId: 'reverse-fly', sets: 3, reps: '15', note: 'Postura y deltoide posterior' }
     ]
   },
   {
@@ -608,6 +716,22 @@ export const ROUTINES: Routine[] = [
       { machineId: 'lat-pulldown', sets: 4, reps: '10-12', note: 'Jalón vertical' },
       { machineId: 'rowing-machine', sets: 4, reps: '12', note: 'Remo horizontal' },
       { machineId: 'lat-pulldown', sets: 3, reps: '15', note: 'Control de escapulas' }
+    ]
+  },
+  {
+    id: 'foc-core',
+    name: 'Core & Estabilidad',
+    description: 'Fortalece tu centro de gravedad. Vital para corredores y levantadores pesados.',
+    type: 'localizado',
+    target: 'general',
+    exercises: [
+      { machineId: 'plank', sets: 3, reps: '60 seg', note: 'Base de estabilidad' },
+      { machineId: 'dead-bug', sets: 3, reps: '12 (total)', note: 'Control lumbar' },
+      { machineId: 'russian-twists', sets: 3, reps: '20-30', note: 'Trabajo de oblicuos' },
+      { machineId: 'bird-dog', sets: 3, reps: '12 (total)', note: 'Estabilidad cruzada' },
+      { machineId: 'leg-raises', sets: 3, reps: '15', note: 'Abdomen inferior' },
+      { machineId: 'bicycle-crunches', sets: 3, reps: '20', note: 'Quemazón abdominal' },
+      { machineId: 'mountain-climbers', sets: 3, reps: '45 seg', note: 'Activación dinámica' }
     ]
   }
 ];

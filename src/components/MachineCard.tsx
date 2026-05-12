@@ -14,28 +14,28 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onClick }) =>
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="geometric-card p-6 cursor-pointer geometric-card-hover group border-transparent hover:border-indigo-100"
+      className="geometric-card p-6 cursor-pointer group border-border-subtle hover:border-accent-recovery transition-all"
     >
       <div className="flex justify-between items-start mb-4">
-        <div>
-          <span className="label-caps">{machine.muscleGroup}</span>
-          <h3 className="text-xl font-extrabold text-slate-900 tracking-tight uppercase italic">{machine.name}</h3>
+        <div className="flex-1 pr-4">
+          <span className="label-caps !text-[8px] !text-accent-recovery">{machine.muscleGroup}</span>
+          <h3 className="text-xl technical-heading text-bright leading-tight uppercase italic">{machine.name}</h3>
         </div>
         <div className="flex flex-col items-end gap-2">
-            <div className="bg-indigo-50 text-indigo-600 p-2.5 rounded-xl shadow-sm">
+            <div className="bg-surface text-accent-recovery p-2.5 rounded-xl border border-border-subtle group-hover:border-accent-recovery transition-all shadow-lg">
                 <Info size={18} />
             </div>
             {machine.videoUrl && (
-                <div className="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg flex items-center gap-1.5 border border-emerald-100 animate-pulse">
-                    <Play size={10} fill="currentColor" />
-                    <span className="text-[8px] font-black uppercase tracking-tighter">Video Guide</span>
+                <div className="bg-accent-recovery/10 text-accent-recovery px-2 py-1 rounded-lg flex items-center gap-1.5 border border-accent-recovery/20">
+                    <Play size={10} fill="currentColor" className="animate-pulse" />
+                    <span className="text-[8px] font-bold uppercase tracking-tighter">Guía HD</span>
                 </div>
             )}
         </div>
       </div>
-      <p className="text-sm text-slate-500 font-medium line-clamp-2 mb-6 leading-relaxed">{machine.description}</p>
-      <div className="flex items-center text-[10px] font-black uppercase text-indigo-600 tracking-widest group-hover:gap-2 transition-all">
-        Ver técnica pro <ChevronRight size={14} />
+      <p className="text-sm text-dim font-medium line-clamp-2 mb-6 leading-relaxed">{machine.description}</p>
+      <div className="flex items-center text-[10px] font-bold uppercase text-accent-recovery tracking-widest group-hover:gap-2 transition-all opacity-80 group-hover:opacity-100">
+        Revisar Técnica <ChevronRight size={14} />
       </div>
     </motion.div>
   );

@@ -11,7 +11,24 @@ import { ActiveSession } from './components/ActiveSession';
 import { MACHINES } from './constants';
 import { Machine, Exercise, Routine } from './types';
 import { useLocalStorage } from './lib/utils';
-import { LayoutDashboard, Dumbbell, History, Bot, X, Check, BookOpen, LogIn, LogOut, User as UserIcon, Plus } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Dumbbell, 
+  History, 
+  Bot, 
+  X, 
+  Check, 
+  BookOpen, 
+  LogIn, 
+  LogOut, 
+  User as UserIcon, 
+  Plus, 
+  Activity, 
+  ShieldCheck, 
+  Play, 
+  Clock, 
+  ArrowLeft 
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, googleProvider, db, handleFirestoreError } from './lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
@@ -28,6 +45,8 @@ export default function App() {
   const [showLogger, setShowLogger] = useState(false);
 
   useEffect(() => {
+    let unsubWorkouts: (() => void) | undefined;
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -44,7 +63,7 @@ export default function App() {
           }, { merge: true });
         } catch (error) {
           console.error("Error updating user profile:", error);
-          handleFirestoreError(error, 'write', `users/${currentUser.uid}`);
+          handleFirestoreError(error, 'write' as any, `users/${currentUser.uid}`);
         }
 
         // Sync workouts
@@ -53,7 +72,7 @@ export default function App() {
           orderBy('date', 'desc')
         );
         
-        const unsubWorkouts = onSnapshot(q, (snapshot) => {
+        unsubWorkouts = onSnapshot(q, (snapshot) => {
           const cloudWorkouts = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
@@ -62,13 +81,22 @@ export default function App() {
           if (cloudWorkouts.length > 0) {
             setWorkouts(cloudWorkouts);
           }
+        }, (error) => {
+           handleFirestoreError(error, 'list' as any, `users/${currentUser.uid}/workouts`);
         });
-
-        return () => unsubWorkouts();
       }
     });
 
-    return () => unsubscribe();
+    // Safety timeout for loading
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => {
+      unsubscribe();
+      if (unsubWorkouts) unsubWorkouts();
+      clearTimeout(timer);
+    };
   }, [setWorkouts]);
 
   const handleLogin = async () => {
@@ -104,68 +132,65 @@ export default function App() {
   };
 
   const tabs = [
-    { id: 'dash', label: 'Inicio', icon: LayoutDashboard },
-    { id: 'routines', label: 'Rutinas', icon: BookOpen },
-    { id: 'history', label: 'Bitácora', icon: History },
+    { id: 'dash', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'routines', label: 'Entrenamiento', icon: Dumbbell },
+    { id: 'history', label: 'Actividad', icon: History },
     { id: 'coach', label: 'Coach', icon: Bot },
   ] as const;
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100">
+    <div className="min-h-screen bg-main font-sans text-bright selection:bg-accent-recovery/20">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 p-4 sticky top-0 z-40">
+      <header className="bg-main/80 backdrop-blur-md border-b border-border-subtle p-4 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-indigo-100">G</div>
-            <h1 className="text-xl font-extrabold tracking-tight uppercase">GymPulse <span className="text-indigo-600 tracking-tighter lowercase font-medium">+Partner</span></h1>
+            <div className="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center font-display font-bold text-xl">A</div>
+            <h1 className="text-xl technical-heading uppercase tracking-tighter">AthlyPulse <span className="text-dim text-xs lowercase font-mono">v1.2</span></h1>
           </div>
           
           <div className="flex items-center gap-4">
             {user ? (
                <div className="flex items-center gap-3">
                  <div className="text-right hidden sm:block">
-                   <p className="text-xs font-black text-slate-900 leading-none">{user.displayName}</p>
-                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{user.email}</p>
+                   <p className="text-xs font-bold text-bright leading-none mb-1">{user.displayName}</p>
+                   <p className="label-caps !text-[8px] tracking-[0.1em]">{user.email}</p>
                  </div>
                  <button onClick={handleLogout} className="group relative">
                    <img 
                       src={user.photoURL || ''} 
-                      className="w-8 h-8 rounded-full border-2 border-indigo-100 group-hover:border-indigo-500 transition-colors" 
+                      className="w-8 h-8 rounded-full border border-border-subtle group-hover:border-white transition-colors" 
                       alt="Avatar"
                       referrerPolicy="no-referrer"
                     />
-                   <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-slate-100">
-                     <LogOut size={10} className="text-slate-400" />
-                   </div>
                  </button>
                </div>
             ) : (
               <button 
                 onClick={handleLogin}
-                className="flex items-center gap-2 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-full border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest"
+                className="flex items-center gap-2 bg-surface text-bright px-4 py-2 rounded-full border border-border-subtle hover:border-white/20 transition-all text-[10px] font-bold uppercase tracking-widest"
               >
                 <LogIn size={14} />
                 <span>Iniciar Sesión</span>
               </button>
             )}
 
-            <div className="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-              <div className="w-5 h-5 bg-pink-400 rounded-full border-2 border-white shadow-sm" />
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:inline">Partner Live</span>
+            <div className="flex items-center gap-3 bg-surface px-4 py-1.5 rounded-full border border-border-subtle">
+              <Activity size={12} className="text-accent-recovery animate-pulse" />
+              <span className="label-caps tracking-[0.05em] text-accent-recovery hidden sm:inline"> Salud Sincronizada</span>
             </div>
           </div>
         </div>
       </header>
 
       {loading && (
-        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <div className="fixed inset-0 bg-main/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+          <div className="w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-6 pb-32">
-        {activeTab === 'dash' && <Dashboard workouts={workouts} />}
+        {activeTab === 'dash' && <Dashboard workouts={workouts} onNavigate={setActiveTab} />}
         
         {activeTab === 'routines' && (
           selectedRoutine ? (
@@ -193,10 +218,10 @@ export default function App() {
             <div className="flex justify-end">
                <button 
                  onClick={() => setShowLogger(!showLogger)}
-                 className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl"
+                 className="geometric-button-primary flex items-center gap-2"
                >
                  {showLogger ? <History size={14} /> : <Plus size={14} />}
-                 {showLogger ? 'Ver Bitácora' : 'Registro Manual'}
+                 {showLogger ? 'Ver Historial' : 'Entrada Manual'}
                </button>
             </div>
             {showLogger ? (
@@ -210,7 +235,7 @@ export default function App() {
       </main>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-auto bg-white/80 backdrop-blur-md border border-slate-200 p-1.5 flex gap-1 rounded-full shadow-2xl shadow-slate-200/50 z-50">
+      <nav className="fixed bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-auto bg-surface/80 backdrop-blur-lg border border-border-subtle p-2 flex gap-1 rounded-full shadow-2xl z-50">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -218,8 +243,8 @@ export default function App() {
                 setActiveTab(tab.id);
                 if (tab.id !== 'routines') setSelectedRoutine(null);
             }}
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-full font-black uppercase text-[10px] tracking-widest transition-all ${
-              activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 rounded-full font-bold uppercase text-[10px] tracking-widest transition-all ${
+              activeTab === tab.id ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-muted hover:text-bright'
             }`}
           >
             <tab.icon size={18} />
@@ -254,59 +279,56 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedMachine(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
             />
             <motion.div
               initial={{ scale: 0.95, y: 30, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 30, opacity: 0 }}
-              className="relative bg-white rounded-[32px] p-8 md:p-12 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] z-10 border border-white"
+              className="relative bg-surface rounded-[40px] p-8 md:p-12 max-w-2xl w-full max-h-[85vh] overflow-y-auto z-10 border border-border-subtle shadow-2xl"
             >
               <button 
                 onClick={() => setSelectedMachine(null)}
-                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-full transition-all"
+                className="absolute top-8 right-8 p-3 text-dim hover:text-bright hover:bg-white/5 rounded-full transition-all"
               >
                 <X size={24} />
               </button>
 
               <div className="mb-10">
-                <span className="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-indigo-100">
+                <span className="bg-accent-recovery/10 text-accent-recovery px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-accent-recovery/20">
                   {selectedMachine.muscleGroup}
                 </span>
-                <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight mt-4">{selectedMachine.name}</h2>
-                <p className="text-slate-500 mt-2 font-medium mb-8">{selectedMachine.description}</p>
+                <h2 className="text-4xl technical-heading mt-6">{selectedMachine.name}</h2>
+                <p className="text-dim mt-4 font-medium mb-12 text-lg">{selectedMachine.description}</p>
                 
-                <div className="h-64 mb-8">
+                <div className="h-64 mb-8 overflow-hidden rounded-3xl">
                   <MachineAnimation machineId={selectedMachine.id} videoUrl={selectedMachine.videoUrl} />
                 </div>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-12">
                 <div>
-                  <h3 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-indigo-50 pb-3 mb-6">Guía de Configuración</h3>
-                  <ul className="space-y-4">
+                  <h3 className="label-caps !text-accent-recovery border-b border-border-subtle pb-4 mb-8">Protocolo de Configuración</h3>
+                  <ul className="space-y-6">
                     {selectedMachine.instructions.map((step, i) => (
-                      <li key={i} className="flex gap-4 items-start">
-                        <div className="flex-shrink-0 w-8 h-8 bg-slate-900 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-md">
+                      <li key={i} className="flex gap-6 items-start">
+                        <div className="flex-shrink-0 w-10 h-10 bg-white text-black rounded-2xl flex items-center justify-center text-sm font-bold shadow-lg">
                           {i + 1}
                         </div>
-                        <p className="font-medium text-slate-700 leading-relaxed pt-1">{step}</p>
+                        <p className="font-medium text-bright leading-relaxed pt-2 text-lg">{step}</p>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 p-6 rounded-2xl relative overflow-hidden">
-                   <div className="absolute top-0 right-0 p-4 opacity-5">
-                      <Check size={48} className="text-indigo-600" />
-                   </div>
-                  <h3 className="font-bold uppercase text-[10px] tracking-widest text-indigo-400 mb-4 flex items-center gap-2">
-                    <Check size={14} /> Evita estos errores
+                <div className="bg-white/5 border border-white/10 p-8 rounded-3xl relative overflow-hidden">
+                  <h3 className="label-caps !text-accent-strain mb-6 flex items-center gap-2">
+                    <ShieldCheck size={16} /> Prevención de Errores
                   </h3>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {selectedMachine.tips.map((tip, i) => (
-                      <li key={i} className="text-sm font-bold text-indigo-900 flex gap-2">
-                        <span className="text-indigo-300">•</span> {tip}
+                      <li key={i} className="text-sm font-medium text-bright flex gap-3">
+                        <span className="text-accent-strain font-bold mt-1">!</span> {tip}
                       </li>
                     ))}
                   </ul>
@@ -315,11 +337,12 @@ export default function App() {
                 <button
                   onClick={() => {
                     setSelectedMachine(null);
-                    setActiveTab('log');
+                    setActiveTab('history');
+                    setShowLogger(true);
                   }}
-                  className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-extrabold uppercase text-lg hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all active:scale-[0.98] mt-4"
+                  className="geometric-button-primary w-full py-6 text-xl"
                 >
-                  Entrenar ahora
+                  Confirmar Entrada
                 </button>
               </div>
             </motion.div>
