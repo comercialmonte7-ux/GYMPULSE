@@ -1,7 +1,7 @@
 {
   "name": "AthlyPulse",
   "short_name": "AthlyPulse",
-  "id": "/?source=pwa",
+  "id": "athly-pulse-pwa-v1",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",

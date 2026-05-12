@@ -1,15 +1,26 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  setPersistence, 
+  browserLocalPersistence,
+  indexedDBLocalPersistence,
+  initializeAuth
+} from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
 
-// Set persistence to local to ensure sessions survive app restarts
-// Using browserLocalPersistence which is the most compatible with PWAs
+// Initialize Auth with high-priority persistence for PWAs
+// We prioritize IndexedDB but fallback to LocalStorage/other browser storage
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+});
+
+// Explicitly ensure persistence is set to local
 export const authInitialized = setPersistence(auth, browserLocalPersistence).then(() => {
-  console.log("Auth persistence set to local");
+  console.log("Auth persistence stabilized for PWA execution context.");
 }).catch((err) => {
   console.error("Auth persistence error:", err);
 });

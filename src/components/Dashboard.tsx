@@ -255,7 +255,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
             Si experimentas el error de "dominio no autorizado" al iniciar sesión desde la pantalla de inicio, asegúrate de que el siguiente dominio esté configurado en tu consola.
           </p>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 mb-8">
             <button 
               onClick={() => {
                 navigator.clipboard.writeText(window.location.hostname);
@@ -280,6 +280,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
             >
               Abrir Consola de Firebase
             </a>
+          </div>
+
+          {/* Botón de Emergencia para Sesión */}
+          <div className="border-t border-white/5 pt-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap size={14} className="text-accent-strain" />
+              <h5 className="text-[9px] font-black uppercase tracking-widest text-dim">Herramientas de Diagnóstico</h5>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button 
+                onClick={() => {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  window.location.reload();
+                }}
+                className="text-[9px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-3 rounded-xl hover:bg-red-500/20 transition-all text-left"
+              >
+                Limpiar datos locales y Reintentar
+                <span className="block text-[8px] opacity-60 normal-case font-medium mt-1">Borra el flag de sesión si se queda bloqueado.</span>
+              </button>
+              
+              <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-xl">
+                 <span className="text-[9px] font-bold uppercase tracking-widest text-dim block mb-2">Estado de Persistencia</span>
+                 <div className="flex items-center gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full ${localStorage.getItem('athly-pulse-session-active') === 'true' ? 'bg-green-500' : 'bg-red-500'}`} />
+                    <span className="text-[10px] text-bright font-mono">FLAG_SESION: {localStorage.getItem('athly-pulse-session-active') || 'NULL'}</span>
+                 </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

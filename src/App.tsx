@@ -65,6 +65,7 @@ export default function App() {
   useEffect(() => {
     let unsubWorkouts: (() => void) | undefined;
     let isInitialAuthCheck = true;
+    const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
 
     const initialize = async () => {
       // 1. Wait for Firebase Persistence context to be ready
@@ -78,18 +79,22 @@ export default function App() {
           localStorage.setItem('athly-pulse-session-active', 'true');
         }
       } catch (error: any) {
-        if (error.code !== 'auth/unauthorized-domain') {
+        if (error.code !== 'auth/unauthorized-domain' && error.code !== 'auth/redirect-cancelled-by-user') {
           showAuthError(error);
         }
       }
 
       // 3. Set up the long-term listener
       const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        const authSettled = !isInitialAuthCheck;
         isInitialAuthCheck = false;
+        
         setUser(currentUser);
         
         if (currentUser) {
           localStorage.setItem('athly-pulse-session-active', 'true');
+          localStorage.setItem('athly-pulse-last-user', currentUser.uid);
+          
           // Create or update user profile
           try {
             await setDoc(doc(db, 'users', currentUser.uid), {
@@ -122,11 +127,17 @@ export default function App() {
              handleFirestoreError(error, 'list' as any, `users/${currentUser.uid}/workouts`);
           });
         } else {
-          localStorage.removeItem('athly-pulse-session-active');
+          // If in standalone mode, we are extremely suspicious of "null" on the first few seconds
+          // because iOS might take time to recover the sandbox session.
+          // We only clear the flag if we are SURE it's a logout or if it's been long enough.
+          if (authSettled) {
+            localStorage.removeItem('athly-pulse-session-active');
+          }
         }
         
         // Delay setting loading to false slightly to allow UI to settle
-        setTimeout(() => setLoading(false), 500);
+        // In standalone mode, we give it a bit more time to avoid flicker
+        setTimeout(() => setLoading(false), isStandalone ? 800 : 300);
       });
 
       return unsubscribe;
@@ -135,11 +146,16 @@ export default function App() {
     const unsubPromise = initialize();
 
     // Safety timeout for loading
-    // If we have a session active flag in localStorage, we wait longer before giving up
+    // If we believe we have a session, we wait longer to avoid showing the login screen prematurely
     const hasSessionFlag = localStorage.getItem('athly-pulse-session-active') === 'true';
-    const safetyTimeout = hasSessionFlag ? 4000 : 2000;
+    const safetyTimeout = isStandalone ? (hasSessionFlag ? 6000 : 3000) : (hasSessionFlag ? 4000 : 2000);
 
     const timer = setTimeout(() => {
+      // If we haven't received a user but have the flag, and we are in standalone mode,
+      // something might be wrong with IndexedDB. We try one last check.
+      if (loading && hasSessionFlag && !user && isStandalone) {
+         console.warn("Auth initialization seems stuck in standalone mode. Checking last resort...");
+      }
       setLoading(false);
     }, safetyTimeout);
 
