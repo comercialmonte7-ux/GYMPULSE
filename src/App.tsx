@@ -51,7 +51,7 @@ export default function App() {
     if (error.code === 'auth/popup-blocked') {
       alert("⚠️ VENTANA BLOQUEADA:\n\nEl navegador bloqueó la ventana de inicio de sesión. Por favor, permite las ventanas emergentes o abre la app directamente en Safari/Chrome.");
     } else if (error.code === 'auth/unauthorized-domain') {
-      const authDomain = auth.config.authDomain;
+      const authDomain = (auth as any).config?.authDomain || (auth as any).app?.options?.authDomain || "firebaseapp.com";
       alert(`🚫 DOMINIO NO AUTORIZADO:\n\nEl dominio '${hostname}' no está en la lista blanca de Firebase.\n\nESTE ES EL DOMINIO QUE DEBES AÑADIR:\n👉 ${hostname}\n\nINSTRUCCIONES:\n1. Ve a tu Consola de Firebase del proyecto 'gen-lang-client-0214067559'.\n2. Authentication > Settings > Dominios Autorizados.\n3. Haz clic en 'Añadir dominio' y pega exactamente: ${hostname}\n4. (Opcional) Añade también: ${authDomain}\n\nNota: Los cambios pueden tardar 1-2 minutos en aplicarse.`);
     } else if (error.code === 'auth/operation-not-allowed') {
       alert("❌ GOOGLE NO HABILITADO:\n\nEl método de inicio de sesión con Google no está habilitado en tu Consola de Firebase (Authentication > Sign-in method).");
@@ -69,7 +69,13 @@ export default function App() {
 
     const initialize = async () => {
       // 1. Wait for Firebase Persistence context to be ready
-      await authInitialized;
+      try {
+        await authInitialized;
+      } catch (e) {
+        console.warn("Auth persistence failed:", e);
+      }
+
+      if (!auth) return;
 
       // 2. Handle redirect result (for those returning from Google Login)
       try {
