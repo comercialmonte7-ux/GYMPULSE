@@ -36,96 +36,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
             <h2 className="text-3xl technical-heading text-bright tracking-tight uppercase leading-none">Panel de Control</h2>
             <p className="label-caps !text-[10px] tracking-widest text-dim mt-2">Vista General de Telemetría Biométrica</p>
         </div>
-        <button 
-            onClick={() => setShowInstructions(true)}
-            className="bg-accent-recovery/10 border border-accent-recovery/30 px-4 py-2 rounded-xl flex items-center gap-3 shadow-lg shadow-accent-recovery/10 hover:bg-accent-recovery/20 transition-all cursor-pointer group"
-        >
-            <div className="w-2 h-2 bg-accent-recovery rounded-full animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-accent-recovery">Apple Health: Sincronizado</span>
-            <Info size={12} className="text-accent-recovery opacity-50 group-hover:opacity-100 transition-opacity" />
-        </button>
       </div>
-
-      <AnimatePresence>
-        {showInstructions && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-surface max-w-md w-full rounded-[2.5rem] border border-border-subtle p-8 shadow-2xl relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 p-6">
-                <button onClick={() => setShowInstructions(false)} className="bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-4 mb-8">
-                <div className="p-3 bg-accent-recovery/20 rounded-2xl text-accent-recovery">
-                  <Watch size={32} />
-                </div>
-                <div>
-                  <h3 className="technical-heading text-xl leading-none uppercase">Vincular Apple Watch</h3>
-                  <p className="label-caps !text-[9px] text-dim mt-2 tracking-widest">Protocolo de sincronización HealthKit</p>
-                </div>
-              </div>
-
-              <div className="space-y-6 mb-8">
-                <div className="flex gap-4">
-                  <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">1</div>
-                  <div>
-                    <p className="text-sm text-bright font-bold leading-tight">Activar Sincronización</p>
-                    <p className="text-xs text-dim mt-1">Al pulsar el botón "Vincular ahora", la aplicación envía una solicitud firmada al sistema HealthKit de iOS. Si estás en la pantalla de inicio y tienes problemas para iniciar sesión, intenta abrir la app primero en Safari.</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">2</div>
-                  <div>
-                    <p className="text-sm text-bright font-bold leading-tight">Autorización de Apple</p>
-                    <p className="text-xs text-dim mt-1">Verás una pantalla de Apple preguntando qué datos quieres compartir (HRV, Sueño, Energía). Únicamente tras este paso, GymPulse aparecerá en tu lista de Apps de Salud.</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
-                  <div>
-                    <p className="text-sm text-bright font-bold leading-tight">Configuración de Firebase</p>
-                    <p className="text-xs text-dim mt-1">Si aparece un error de "dominio no autorizado", debes añadir <b>{window.location.hostname}</b> en la sección de Dominios Autorizados de tu Consola de Firebase.</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                       <a href={`https://console.firebase.google.com/project/${firebaseConfig.projectId}/authentication/settings`} target="_blank" rel="noreferrer" className="text-[9px] font-bold uppercase tracking-widest bg-accent-recovery/20 text-accent-recovery px-3 py-1 rounded-md border border-accent-recovery/30 hover:bg-accent-recovery/30 transition-all">Consola de Firebase</a>
-                       <button 
-                         onClick={() => {
-                           navigator.clipboard.writeText(window.location.hostname);
-                           alert("Dominio copiado: " + window.location.hostname);
-                         }}
-                         className="text-[9px] font-bold uppercase tracking-widest bg-white/5 text-bright px-3 py-1 rounded-md border border-white/10 hover:bg-white/10 transition-all"
-                       >
-                         Copiar Dominio
-                       </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-accent-recovery/5 border border-accent-recovery/20 p-5 rounded-2xl">
-                <div className="flex items-start gap-4">
-                  <ShieldCheck size={20} className="text-accent-recovery shrink-0" />
-                  <p className="text-[11px] text-accent-recovery font-bold leading-relaxed tracking-wide uppercase">
-                    Tus datos biométricos se procesan localmente para garantizar máxima privacidad neuromuscular.
-                  </p>
-                </div>
-              </div>
-              
-              <button 
-                onClick={() => setShowInstructions(false)}
-                className="geometric-button-primary w-full py-4 mt-8"
-              >
-                Entendido
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
       {/* Recovery Ring Section */}
       <div className="relative flex flex-col items-center justify-center pt-8 pb-4">
         {/* Mock ring */}
@@ -281,6 +192,97 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
             </div>
         </div>
       </motion.div>
+
+      {/* Servicios & Sincronización - Directo y Transparente */}
+      <div className="space-y-6 pt-10 border-t border-border-subtle">
+        <div className="bg-accent-recovery/5 border border-accent-recovery/20 rounded-[2.5rem] p-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 rounded-2xl bg-accent-recovery/20 flex items-center justify-center text-accent-recovery">
+              <Watch size={20} />
+            </div>
+            <div>
+              <h3 className="text-xl technical-heading leading-none uppercase">Vincular con Apple Health</h3>
+              <p className="label-caps !text-[9px] text-accent-recovery mt-2 tracking-widest">Protocolo de sincronización manual</p>
+            </div>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">1</div>
+                <p className="text-xs text-dim leading-relaxed">
+                  Busca la app de <span className="text-bright font-bold">Salud</span> en tu iPhone. No es necesario descargar nada extra.
+                </p>
+              </div>
+              
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">2</div>
+                <p className="text-xs text-dim leading-relaxed">
+                  Entra en <span className="text-bright font-bold">Fuentes</span> o toca tu perfil y ve a <span className="text-bright font-bold">Apps & Servicios</span>.
+                </p>
+              </div>
+              
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
+                <p className="text-xs text-dim leading-relaxed">
+                  Busca <span className="text-bright font-bold font-mono uppercase">GymPulse</span> y activa las categorías que desees compartir.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
+              <div className="flex items-start gap-4">
+                <Info size={16} className="text-accent-recovery shrink-0" />
+                <div>
+                  <p className="text-[10px] font-bold text-bright uppercase tracking-wide mb-2 italic">Dato Importante:</p>
+                  <p className="text-[11px] text-dim leading-relaxed italic opacity-80">
+                    "Al ser una aplicación web avanzada (PWA), la conexión es directa. Una vez otorgues el permiso en tu iPhone, los datos aparecerán automáticamente en tu Panel de Control."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Sección de Soporte Técnico y Dominios */}
+        <div className="bg-surface/30 border border-border-subtle rounded-[2.5rem] p-8">
+          <div className="flex items-center gap-4 mb-4">
+            <ShieldCheck size={20} className="text-dim/50" />
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-dim">Mantenimiento de Seguridad</h4>
+          </div>
+          
+          <p className="text-xs text-dim/60 mb-6 max-w-lg">
+            Si experimentas el error de "dominio no autorizado" al iniciar sesión desde la pantalla de inicio, asegúrate de que el siguiente dominio esté configurado en tu consola.
+          </p>
+
+          <div className="flex flex-wrap gap-3">
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.hostname);
+                alert("Dominio copiado al portapapeles: " + window.location.hostname);
+              }}
+              className="flex-1 min-w-[200px] flex items-center justify-between gap-4 bg-white/5 border border-white/10 px-5 py-3 rounded-xl hover:bg-white/10 transition-all group"
+            >
+              <div className="flex flex-col items-start">
+                <span className="text-[8px] font-black text-dim uppercase tracking-widest mb-1">Tu Dominio Actual</span>
+                <span className="text-xs text-bright font-mono">{window.location.hostname}</span>
+              </div>
+              <div className="p-2 rounded-lg bg-white/5 group-hover:bg-accent-recovery/20 transition-colors">
+                <X size={12} className="rotate-45 text-accent-recovery" />
+              </div>
+            </button>
+
+            <a 
+              href={`https://console.firebase.google.com/project/${firebaseConfig.projectId}/authentication/settings`} 
+              target="_blank" 
+              rel="noreferrer"
+              className="flex-1 min-w-[200px] flex items-center justify-center gap-2 bg-accent-recovery/20 text-accent-recovery border border-accent-recovery/30 px-5 py-3 rounded-xl hover:bg-accent-recovery/30 transition-all font-black uppercase tracking-widest text-[9px]"
+            >
+              Abrir Consola de Firebase
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
