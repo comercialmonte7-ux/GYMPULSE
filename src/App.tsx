@@ -93,8 +93,22 @@ export default function App() {
       // 3. Set up the long-term listener
       const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
         const authSettled = !isInitialAuthCheck;
-        isInitialAuthCheck = false;
         
+        // In standalone mode, if we get a null user but had a session before,
+        // we wait an extra moment before accepting the null state.
+        if (!currentUser && isInitialAuthCheck && isStandalone && localStorage.getItem('athly-pulse-session-active') === 'true') {
+          console.log("Detected possible session recovery lag in Standalone mode. Waiting...");
+          // We don't set isInitialAuthCheck to false yet, we wait for a potential second fire
+          setTimeout(() => {
+            if (isInitialAuthCheck) {
+              isInitialAuthCheck = false;
+              setLoading(false);
+            }
+          }, 2000);
+          return;
+        }
+
+        isInitialAuthCheck = false;
         setUser(currentUser);
         
         if (currentUser) {

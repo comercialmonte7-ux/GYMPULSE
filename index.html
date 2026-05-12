@@ -9,6 +9,22 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="AthlyPulse" />
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png" />
+    
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW Registered!', reg))
+            .catch(err => console.log('SW Registration Failed:', err));
+        });
+      }
+
+      // Detect if user is in standalone mode
+      window.isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+      if (window.isStandalone) {
+        console.log("AthlyPulse running in standalone mode (iOS Home App)");
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

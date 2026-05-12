@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app';
 import { 
-  getAuth, 
   GoogleAuthProvider, 
   setPersistence, 
   browserLocalPersistence,
@@ -12,15 +11,14 @@ import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// Initialize Auth with standard getAuth and set persistence manually
-export const auth = getAuth(app);
-
-// Explicitly ensure persistence is set to local
-export const authInitialized = setPersistence(auth, browserLocalPersistence).then(() => {
-  console.log("Auth persistence stabilized.");
-}).catch((err) => {
-  console.error("Auth persistence error:", err);
+// Initialize Auth with high-priority persistence for PWAs
+// We prioritize IndexedDB but fallback to LocalStorage/other browser storage
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence]
 });
+
+// Explicitly ensure persistence is set to local and wait for it
+export const authInitialized = (auth as any)._initializationPromise || Promise.resolve();
 
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
