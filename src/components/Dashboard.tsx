@@ -90,7 +90,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
                   <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
                   <div>
                     <p className="text-sm text-bright font-bold leading-tight">Configuración de Firebase</p>
-                    <p className="text-xs text-dim mt-1">Si aparece un error de "dominio no autorizado", debes añadir <b>{window.location.hostname}</b> en la sección de Dominios Autorizados de tu Consola de Firebase en: <br/><a href={`https://console.firebase.google.com/project/${firebaseConfig.projectId}/authentication/settings`} target="_blank" rel="noreferrer" className="text-accent-recovery underline">Ir a Configuración de Firebase</a></p>
+                    <p className="text-xs text-dim mt-1">Si aparece un error de "dominio no autorizado", debes añadir <b>{window.location.hostname}</b> en la sección de Dominios Autorizados de tu Consola de Firebase.</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                       <a href={`https://console.firebase.google.com/project/${firebaseConfig.projectId}/authentication/settings`} target="_blank" rel="noreferrer" className="text-[9px] font-bold uppercase tracking-widest bg-accent-recovery/20 text-accent-recovery px-3 py-1 rounded-md border border-accent-recovery/30 hover:bg-accent-recovery/30 transition-all">Consola de Firebase</a>
+                       <button 
+                         onClick={() => {
+                           navigator.clipboard.writeText(window.location.hostname);
+                           alert("Dominio copiado: " + window.location.hostname);
+                         }}
+                         className="text-[9px] font-bold uppercase tracking-widest bg-white/5 text-bright px-3 py-1 rounded-md border border-white/10 hover:bg-white/10 transition-all"
+                       >
+                         Copiar Dominio
+                       </button>
+                    </div>
                   </div>
                 </div>
               </div>

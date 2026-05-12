@@ -46,16 +46,19 @@ export default function App() {
 
   const showAuthError = (error: any) => {
     console.error("Auth Error:", error);
+    const hostname = window.location.hostname;
+    
     if (error.code === 'auth/popup-blocked') {
-      alert("El navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes o usa Safari fuera de la pantalla de inicio.");
+      alert("⚠️ VENTANA BLOQUEADA:\n\nEl navegador bloqueó la ventana de inicio de sesión. Por favor, permite las ventanas emergentes o abre la app directamente en Safari/Chrome.");
     } else if (error.code === 'auth/unauthorized-domain') {
-      alert("ERROR DE DOMINIO NO AUTORIZADO:\n\nEl dominio '" + window.location.hostname + "' no está en la lista blanca de Firebase.\n\nSOLUCIÓN:\n1. Ve a la Consola de Firebase del proyecto 'gen-lang-client-0214067559'.\n2. Ve a Authentication > Settings > Dominios Autorizados.\n3. Añade '" + window.location.hostname + "'\n4. REINICIA LA APP (cierra y abre de nuevo).");
+      const authDomain = auth.config.authDomain;
+      alert(`🚫 DOMINIO NO AUTORIZADO:\n\nEl dominio '${hostname}' no está en la lista blanca de Firebase.\n\nESTE ES EL DOMINIO QUE DEBES AÑADIR:\n👉 ${hostname}\n\nINSTRUCCIONES:\n1. Ve a tu Consola de Firebase del proyecto 'gen-lang-client-0214067559'.\n2. Authentication > Settings > Dominios Autorizados.\n3. Haz clic en 'Añadir dominio' y pega exactamente: ${hostname}\n4. (Opcional) Añade también: ${authDomain}\n\nNota: Los cambios pueden tardar 1-2 minutos en aplicarse.`);
     } else if (error.code === 'auth/operation-not-allowed') {
-      alert("El método de inicio de sesión con Google no está habilitado en Firebase.");
+      alert("❌ GOOGLE NO HABILITADO:\n\nEl método de inicio de sesión con Google no está habilitado en tu Consola de Firebase (Authentication > Sign-in method).");
     } else if (error.code === 'auth/internal-error') {
-      alert("Error interno de Firebase. Verifica tu conexión.");
+      alert("⚙️ ERROR INTERNO:\n\nError de red o de Firebase. Verifica tu conexión.");
     } else {
-      alert("Error de Autenticación (" + error.code + "): " + (error.message || "Intenta nuevamente"));
+      alert("⚠️ ERROR DE AUTENTICACIÓN (" + error.code + "):\n\n" + (error.message || "Intenta nuevamente"));
     }
   };
 
