@@ -8,14 +8,11 @@ export const auth = getAuth(app);
 
 // Set persistence to local to ensure sessions survive app restarts
 // Using browserLocalPersistence which is the most compatible with PWAs
-const initAuth = async () => {
-  try {
-    await setPersistence(auth, browserLocalPersistence);
-  } catch (err) {
-    console.error("Auth persistence error:", err);
-  }
-};
-initAuth();
+export const authInitialized = setPersistence(auth, browserLocalPersistence).then(() => {
+  console.log("Auth persistence set to local");
+}).catch((err) => {
+  console.error("Auth persistence error:", err);
+});
 
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();

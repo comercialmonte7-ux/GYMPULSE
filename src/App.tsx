@@ -30,7 +30,7 @@ import {
   ArrowLeft 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { auth, googleProvider, db, handleFirestoreError } from './lib/firebase';
+import { auth, googleProvider, db, handleFirestoreError, authInitialized } from './lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, User } from 'firebase/auth';
 import { collection, onSnapshot, addDoc, query, orderBy, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 
@@ -66,72 +66,85 @@ export default function App() {
     let unsubWorkouts: (() => void) | undefined;
     let isInitialAuthCheck = true;
 
-    // Handle redirect result FIRST
-    getRedirectResult(auth).then((result) => {
-      if (result?.user) {
-        setUser(result.user);
-      }
-    }).catch((error) => {
-      // Don't show unauthorized domain error on initial boot if it's just a background check
-      if (error.code !== 'auth/unauthorized-domain') {
-        showAuthError(error);
-      }
-    }).finally(() => {
-      // Only set loading false here if auth listener hasn't fired yet
-      if (!isInitialAuthCheck) setLoading(false);
-    });
+    const initialize = async () => {
+      // 1. Wait for Firebase Persistence context to be ready
+      await authInitialized;
 
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      // If we're handling a redirect, wait for it before finalizing user state
-      isInitialAuthCheck = false;
-      setUser(currentUser);
-      
-      // Delay setting loading to false slightly to allow UI to settle
-      setTimeout(() => setLoading(false), 500);
-      
-      if (currentUser) {
-        // Create or update user profile
-        try {
-          await setDoc(doc(db, 'users', currentUser.uid), {
-            uid: currentUser.uid,
-            email: currentUser.email,
-            displayName: currentUser.displayName,
-            photoURL: currentUser.photoURL,
-            lastLogin: serverTimestamp()
-          }, { merge: true });
-        } catch (error) {
-          console.error("Error updating user profile:", error);
-          handleFirestoreError(error, 'write' as any, `users/${currentUser.uid}`);
+      // 2. Handle redirect result (for those returning from Google Login)
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          setUser(result.user);
+          localStorage.setItem('athly-pulse-session-active', 'true');
         }
-
-        // Sync workouts
-        const q = query(
-          collection(db, 'users', currentUser.uid, 'workouts'),
-          orderBy('date', 'desc')
-        );
-        
-        unsubWorkouts = onSnapshot(q, (snapshot) => {
-          const cloudWorkouts = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          } as Exercise));
-          
-          if (cloudWorkouts.length > 0) {
-            setWorkouts(cloudWorkouts);
-          }
-        }, (error) => {
-           handleFirestoreError(error, 'list' as any, `users/${currentUser.uid}/workouts`);
-        });
+      } catch (error: any) {
+        if (error.code !== 'auth/unauthorized-domain') {
+          showAuthError(error);
+        }
       }
-    });
+
+      // 3. Set up the long-term listener
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        isInitialAuthCheck = false;
+        setUser(currentUser);
+        
+        if (currentUser) {
+          localStorage.setItem('athly-pulse-session-active', 'true');
+          // Create or update user profile
+          try {
+            await setDoc(doc(db, 'users', currentUser.uid), {
+              uid: currentUser.uid,
+              email: currentUser.email,
+              displayName: currentUser.displayName,
+              photoURL: currentUser.photoURL,
+              lastLogin: serverTimestamp()
+            }, { merge: true });
+          } catch (error) {
+            console.error("Error updating user profile:", error);
+          }
+
+          // Sync workouts
+          const q = query(
+            collection(db, 'users', currentUser.uid, 'workouts'),
+            orderBy('date', 'desc')
+          );
+          
+          unsubWorkouts = onSnapshot(q, (snapshot) => {
+            const cloudWorkouts = snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            } as Exercise));
+            
+            if (cloudWorkouts.length > 0) {
+              setWorkouts(cloudWorkouts);
+            }
+          }, (error) => {
+             handleFirestoreError(error, 'list' as any, `users/${currentUser.uid}/workouts`);
+          });
+        } else {
+          localStorage.removeItem('athly-pulse-session-active');
+        }
+        
+        // Delay setting loading to false slightly to allow UI to settle
+        setTimeout(() => setLoading(false), 500);
+      });
+
+      return unsubscribe;
+    };
+
+    const unsubPromise = initialize();
 
     // Safety timeout for loading
+    // If we have a session active flag in localStorage, we wait longer before giving up
+    const hasSessionFlag = localStorage.getItem('athly-pulse-session-active') === 'true';
+    const safetyTimeout = hasSessionFlag ? 4000 : 2000;
+
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, safetyTimeout);
 
     return () => {
-      unsubscribe();
+      unsubPromise.then(unsub => unsub());
       if (unsubWorkouts) unsubWorkouts();
       clearTimeout(timer);
     };
