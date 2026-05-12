@@ -82,9 +82,12 @@ export default function App() {
     });
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      // If we're handling a redirect, wait for it before finalizing user state
       isInitialAuthCheck = false;
       setUser(currentUser);
-      setLoading(false);
+      
+      // Delay setting loading to false slightly to allow UI to settle
+      setTimeout(() => setLoading(false), 500);
       
       if (currentUser) {
         // Create or update user profile
@@ -236,8 +239,18 @@ export default function App() {
       </header>
 
       {loading && (
-        <div className="fixed inset-0 bg-main/80 backdrop-blur-sm z-[100] flex items-center justify-center">
-          <div className="w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        <div className="fixed inset-0 bg-main z-[100] flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-16 h-16 bg-white text-black rounded-2xl flex items-center justify-center font-display font-bold text-3xl mb-8 animate-pulse shadow-2xl shadow-white/10">A</div>
+          <div className="w-12 h-12 border-2 border-accent-recovery border-t-transparent rounded-full animate-spin mb-6" />
+          <h2 className="technical-heading text-xl uppercase tracking-widest text-bright">Sincronizando</h2>
+          <p className="label-caps !text-[10px] text-dim mt-2 tracking-[0.2em]">Verificando Telemetría Biometrica...</p>
+          
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-12 text-[9px] font-black uppercase tracking-widest text-dim hover:text-bright transition-colors border border-white/5 px-4 py-2 rounded-lg"
+          >
+            Si tarda demasiado, pulsa aquí para reintentar
+          </button>
         </div>
       )}
 
