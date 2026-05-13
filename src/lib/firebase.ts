@@ -1,5 +1,6 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApp, getApps } from 'firebase/app';
 import { 
+  getAuth, 
   GoogleAuthProvider, 
   setPersistence, 
   browserLocalPersistence,
@@ -9,22 +10,23 @@ import {
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfig);
+// Ensure singleton app initialization
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// For PWAs on iOS, initializeAuth with explicit IndexedDB is superior to standard getAuth
-// because it forces the session to be shared correctly between standalone and browser contexts
+// Use initializeAuth with explicit persistence for better control in PWA context
+// We try IndexedDB first but fallback to browserLocalPersistence (LocalStorage)
+// This is the most robust way to handle the iOS standalone sandbox
 export const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence]
 });
 
-// We capture the initialization promise if available, otherwise just resolve
+// Capture the underlying promise for persistence setup
 export const authInitialized = (auth as any)._initializationPromise || Promise.resolve();
 
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ 
   prompt: 'select_account',
-  // Adding specific parameters to help with PWA/Standalone context
   display: 'touch' 
 });
 

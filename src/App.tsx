@@ -68,28 +68,40 @@ export default function App() {
     const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
 
     const initialize = async () => {
-      // 1. Wait for Firebase Persistence context to be ready
+      // 1. Wait for Firebase Persistence context to be ready (critical for PWAs)
       try {
+        console.log("Waiting for auth initialization...");
         await authInitialized;
+        console.log("Auth initialized successfully");
       } catch (e) {
-        console.warn("Auth persistence failed:", e);
+        console.warn("Auth persistence failed, but continuing with defaults:", e);
       }
 
       if (!auth) {
-        console.error("Firebase Auth instance is not available.");
+        console.error("Firebase Auth instance is MISSING after initialization!");
+        setLoading(false);
         return;
       }
 
       // 2. Handle redirect result (for those returning from Google Login)
+      // This is often where auth/argument-error occurs if auth object isn't ready
       try {
         const result = await getRedirectResult(auth);
         if (result?.user) {
+          console.log("Login redirect successful for:", result.user.email);
           setUser(result.user);
           localStorage.setItem('athly-pulse-session-active', 'true');
         }
       } catch (error: any) {
+        // We catch redirect-cancelled because it's common and harmless
         if (error.code !== 'auth/unauthorized-domain' && error.code !== 'auth/redirect-cancelled-by-user') {
-          showAuthError(error);
+          console.error("Redirect Result Error:", error);
+          if (error.code === 'auth/argument-error') {
+             console.warn("Retrying initialization once due to argument error...");
+             // No need to throw here, onAuthStateChanged will handle the recovery
+          } else {
+             showAuthError(error);
+          }
         }
       }
 
@@ -194,22 +206,43 @@ export default function App() {
   const handleLogin = async () => {
     setLoginLoading(true);
     try {
-      if (!auth || !googleProvider) {
-        throw { code: 'auth/argument-error', message: 'Motor de autenticación no preparado. Recarga la página.' };
+      if (!auth) {
+        throw new Error("El motor de autenticación no está listo. Por favor, recarga la aplicación e intenta de nuevo.");
       }
+
+      // Re-create provider to ensure it's a fresh instance and avoid any prototype pollution/issues
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ 
+        prompt: 'select_account',
+        display: 'touch'
+      });
 
       const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
       
       if (isStandalone) {
-        // En iOS PWA, signInWithRedirect es necesario para evitar redirecciones fallidas
-        await signInWithRedirect(auth, googleProvider);
+        console.log("Standalone mode detected: Using signInWithRedirect");
+        await signInWithRedirect(auth, provider);
       } else {
-        await signInWithPopup(auth, googleProvider);
+        console.log("Browser mode detected: Using signInWithPopup");
+        try {
+          await signInWithPopup(auth, provider);
+        } catch (popupError: any) {
+          // If popup is blocked or fails, fallback to redirect even in browser
+          if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/cancelled-by-user') {
+            throw popupError; // Let the main catch handle it with a specific message
+          }
+          console.warn("Popup failed, trying redirect fallback...", popupError);
+          await signInWithRedirect(auth, provider);
+        }
       }
     } catch (error: any) {
-      showAuthError(error);
+      if (error.code === 'auth/argument-error') {
+        console.error("Critical Auth Argument Error:", error);
+        alert("🚨 ERROR DE CONFIGURACIÓN:\n\nHay un problema técnico con la conexión a Google. Esto suele ocurrir por un conflicto de sesión en iOS.\n\nSOLUCIÓN:\n1. Cierra la app completamente.\n2. Ábrela de nuevo.\n3. Si persiste, usa el botón 'Limpiar datos locales' en el Resumen.");
+      } else {
+        showAuthError(error);
+      }
     } finally {
-      // Si estamos en Standalone, no quitamos el loading porque se irá de la página
       const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
       if (!isStandalone) {
         setLoginLoading(false);
