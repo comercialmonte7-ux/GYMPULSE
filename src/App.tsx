@@ -70,66 +70,37 @@ export default function App() {
     const initialize = async () => {
       // 1. Wait for Firebase Persistence context to be ready (critical for PWAs)
       try {
-        console.log("Waiting for auth initialization...");
         await authInitialized;
-        console.log("Auth initialized successfully");
       } catch (e) {
-        console.warn("Auth persistence failed, but continuing with defaults:", e);
+        console.warn("Auth persistence failed:", e);
       }
 
       if (!auth) {
-        console.error("Firebase Auth instance is MISSING after initialization!");
         setLoading(false);
         return;
       }
 
-      // 2. Handle redirect result (for those returning from Google Login)
-      // This is often where auth/argument-error occurs if auth object isn't ready
+      // 2. Handle redirect result
       try {
         const result = await getRedirectResult(auth);
         if (result?.user) {
-          console.log("Login redirect successful for:", result.user.email);
           setUser(result.user);
-          localStorage.setItem('athly-pulse-session-active', 'true');
         }
       } catch (error: any) {
-        // We catch redirect-cancelled because it's common and harmless
         if (error.code !== 'auth/unauthorized-domain' && error.code !== 'auth/redirect-cancelled-by-user') {
-          console.error("Redirect Result Error:", error);
-          if (error.code === 'auth/argument-error') {
-             console.warn("Retrying initialization once due to argument error...");
-             // No need to throw here, onAuthStateChanged will handle the recovery
-          } else {
-             showAuthError(error);
+          console.error("Redirect Error:", error);
+          if (error.code !== 'auth/argument-error') {
+            showAuthError(error);
           }
         }
       }
 
       // 3. Set up the long-term listener
       const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-        const authSettled = !isInitialAuthCheck;
-        
-        // In standalone mode, if we get a null user but had a session before,
-        // we wait an extra moment before accepting the null state.
-        if (!currentUser && isInitialAuthCheck && isStandalone && localStorage.getItem('athly-pulse-session-active') === 'true') {
-          console.log("Detected possible session recovery lag in Standalone mode. Waiting...");
-          // We don't set isInitialAuthCheck to false yet, we wait for a potential second fire
-          setTimeout(() => {
-            if (isInitialAuthCheck) {
-              isInitialAuthCheck = false;
-              setLoading(false);
-            }
-          }, 2000);
-          return;
-        }
-
-        isInitialAuthCheck = false;
         setUser(currentUser);
+        setLoading(false);
         
         if (currentUser) {
-          localStorage.setItem('athly-pulse-session-active', 'true');
-          localStorage.setItem('athly-pulse-last-user', currentUser.uid);
-          
           // Create or update user profile
           try {
             await setDoc(doc(db, 'users', currentUser.uid), {
@@ -161,18 +132,7 @@ export default function App() {
           }, (error) => {
              handleFirestoreError(error, 'list' as any, `users/${currentUser.uid}/workouts`);
           });
-        } else {
-          // If in standalone mode, we are extremely suspicious of "null" on the first few seconds
-          // because iOS might take time to recover the sandbox session.
-          // We only clear the flag if we are SURE it's a logout or if it's been long enough.
-          if (authSettled) {
-            localStorage.removeItem('athly-pulse-session-active');
-          }
         }
-        
-        // Delay setting loading to false slightly to allow UI to settle
-        // In standalone mode, we give it a bit more time to avoid flicker
-        setTimeout(() => setLoading(false), isStandalone ? 800 : 300);
       });
 
       return unsubscribe;
@@ -186,13 +146,8 @@ export default function App() {
     const safetyTimeout = isStandalone ? (hasSessionFlag ? 6000 : 3000) : (hasSessionFlag ? 4000 : 2000);
 
     const timer = setTimeout(() => {
-      // If we haven't received a user but have the flag, and we are in standalone mode,
-      // something might be wrong with IndexedDB. We try one last check.
-      if (loading && hasSessionFlag && !user && isStandalone) {
-         console.warn("Auth initialization seems stuck in standalone mode. Checking last resort...");
-      }
       setLoading(false);
-    }, safetyTimeout);
+    }, isStandalone ? 4000 : 2000);
 
     return () => {
       unsubPromise.then(unsub => unsub());

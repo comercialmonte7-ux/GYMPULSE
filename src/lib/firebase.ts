@@ -3,9 +3,7 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   setPersistence, 
-  browserLocalPersistence,
-  indexedDBLocalPersistence,
-  initializeAuth
+  browserSessionPersistence 
 } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
@@ -13,15 +11,13 @@ import firebaseConfig from '../../firebase-applet-config.json';
 // Ensure singleton app initialization
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Use initializeAuth with explicit persistence for better control in PWA context
-// We try IndexedDB first but fallback to browserLocalPersistence (LocalStorage)
-// This is the most robust way to handle the iOS standalone sandbox
-export const auth = initializeAuth(app, {
-  persistence: [indexedDBLocalPersistence, browserLocalPersistence]
-});
+// Using standard getAuth and switching to session persistence as a radical stability measure for iOS PWA
+export const auth = getAuth(app);
 
-// Capture the underlying promise for persistence setup
-export const authInitialized = (auth as any)._initializationPromise || Promise.resolve();
+// Explicitly ensure persistence is set to session (stays active while tab/standalone app is open)
+export const authInitialized = setPersistence(auth, browserSessionPersistence).catch((err) => {
+  console.error("Auth persistence error:", err);
+});
 
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
