@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, googleProvider, db, handleFirestoreError, authInitialized } from './lib/firebase';
-import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, User, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, User, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { collection, onSnapshot, addDoc, query, orderBy, setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
 
 export default function App() {
@@ -105,6 +105,31 @@ export default function App() {
         setAuthError('El correo electrónico no es válido.');
       } else {
         setAuthError(err.message || 'Ocurrió un error al intentar autenticar.');
+      }
+    } finally {
+      setEmailAuthLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!auth) return;
+    if (!authEmail.trim()) {
+      setAuthError('Por favor, escribe tu correo arriba para restablecer la contraseña.');
+      return;
+    }
+    setAuthError('');
+    setEmailAuthLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, authEmail.trim());
+      alert(`📧 CORREO ENVIADO:\n\nSe ha enviado un enlace de restablecimiento a:\n👉 ${authEmail}\n\nRevisa tu bandeja de entrada o correo no deseado (SPAM) para cambiar tu contraseña e iniciar sesión.`);
+    } catch (err: any) {
+      console.error("Password reset error:", err);
+      if (err.code === 'auth/user-not-found') {
+        setAuthError('No existe ningún usuario con este correo electrónico.');
+      } else if (err.code === 'auth/invalid-email') {
+        setAuthError('El correo electrónico no es válido.');
+      } else {
+        setAuthError(err.message || 'Error al intentar enviar el correo de restablecimiento.');
       }
     } finally {
       setEmailAuthLoading(false);
@@ -630,6 +655,18 @@ export default function App() {
                     <Lock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
                   </div>
                 </div>
+
+                {!isSignUp && (
+                  <div className="text-right mt-3">
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-[9px] font-bold uppercase tracking-widest text-accent-recovery hover:text-bright transition-colors"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  </div>
+                )}
 
                 <button
                   type="submit"
