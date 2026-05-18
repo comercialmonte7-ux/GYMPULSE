@@ -662,6 +662,30 @@ export default function App() {
               <div className="bg-accent-recovery/5 border border-accent-recovery/20 p-4 rounded-2xl mt-8 text-[10px] text-accent-recovery leading-relaxed italic text-center">
                 💡 <strong>Consejo para iPhone (PWA):</strong> Usar tu correo y contraseña te permite ingresar de inmediato sin salir de la pantalla de inicio.
               </div>
+
+              <div className="text-center mt-6">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (confirm("¿Deseas forzar la limpieza de caché de la app para cargar la última versión v2.0?")) {
+                      localStorage.clear();
+                      sessionStorage.clear();
+                      if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        for (let r of regs) await r.unregister();
+                      }
+                      if ('caches' in window) {
+                        const keys = await caches.keys();
+                        for (let k of keys) await caches.delete(k);
+                      }
+                      window.location.reload();
+                    }
+                  }}
+                  className="text-[8px] font-bold uppercase tracking-widest text-red-500/60 hover:text-red-400 transition-colors"
+                >
+                  ⚠️ Limpiar Caché e Instalar v2.0
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
