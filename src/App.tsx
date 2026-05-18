@@ -34,7 +34,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, googleProvider, db, handleFirestoreError, authInitialized } from './lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, User, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { collection, onSnapshot, addDoc, query, orderBy, setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, query, orderBy, setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dash' | 'routines' | 'history' | 'coach' | 'machines'>('dash');
@@ -62,15 +62,29 @@ export default function App() {
     try {
       if (isSignUp) {
         const userCredential = await createUserWithEmailAndPassword(auth, authEmail, authPassword);
-        if (authDisplayName.trim()) {
-          await updateProfile(userCredential.user, {
-            displayName: authDisplayName.trim()
+        const name = authDisplayName.trim() || 'GymPulse Athlete';
+        await updateProfile(userCredential.user, {
+          displayName: name,
+          photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png'
+        });
+        
+        try {
+          await setDoc(doc(db, 'users', userCredential.user.uid), {
+            uid: userCredential.user.uid,
+            email: userCredential.user.email,
+            displayName: name,
+            photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
+            lastLogin: serverTimestamp()
           });
-          setUser({
-            ...userCredential.user,
-            displayName: authDisplayName.trim()
-          } as any);
+        } catch (fsErr) {
+          console.error("Firestore user creation error:", fsErr);
         }
+
+        setUser({
+          ...userCredential.user,
+          displayName: name,
+          photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png'
+        } as any);
         setShowAuthModal(false);
       } else {
         await signInWithEmailAndPassword(auth, authEmail, authPassword);
@@ -155,17 +169,21 @@ export default function App() {
         
         if (currentUser) {
           localStorage.setItem('gym-pulse-session-active', 'true');
-          // Create or update user profile
+          // Create user profile only if it doesn't exist yet to respect update security rules and prevent permission-denied
           try {
-            await setDoc(doc(db, 'users', currentUser.uid), {
-              uid: currentUser.uid,
-              email: currentUser.email,
-              displayName: currentUser.displayName,
-              photoURL: currentUser.photoURL,
-              lastLogin: serverTimestamp()
-            }, { merge: true });
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            if (!userDocSnap.exists()) {
+              await setDoc(userDocRef, {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                displayName: currentUser.displayName || 'GymPulse Athlete',
+                photoURL: currentUser.photoURL || 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
+                lastLogin: serverTimestamp()
+              });
+            }
           } catch (error) {
-            console.error("Error updating user profile:", error);
+            console.error("Error verifying/creating user profile:", error);
           }
 
           // Sync workouts
