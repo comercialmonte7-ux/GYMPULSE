@@ -225,7 +225,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
               <div className="flex gap-4">
                 <div className="w-6 h-6 rounded-full bg-accent-recovery/10 border border-accent-recovery/30 flex items-center justify-center text-[10px] font-black text-accent-recovery shrink-0">3</div>
                 <p className="text-xs text-dim leading-relaxed">
-                  Revisa si <span className="text-bright font-bold font-mono uppercase">AthlyPulse</span> aparece ahí y activa los permisos de lectura.
+                  Revisa si <span className="text-bright font-bold font-mono uppercase">GymPulse</span> aparece ahí y activa los permisos de lectura.
                 </p>
               </div>
             </div>
@@ -304,8 +304,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ workouts, onNavigate }) =>
               <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-xl">
                  <span className="text-[9px] font-bold uppercase tracking-widest text-dim block mb-2">Estado de Persistencia</span>
                  <div className="flex items-center gap-2">
-                    <div className={`w-1.5 h-1.5 rounded-full ${localStorage.getItem('athly-pulse-session-active') === 'true' ? 'bg-green-500' : 'bg-red-500'}`} />
-                    <span className="text-[10px] text-bright font-mono">FLAG_SESION: {localStorage.getItem('athly-pulse-session-active') || 'NULL'}</span>
+                    <div className={`w-1.5 h-1.5 rounded-full ${localStorage.getItem('gym-pulse-session-active') === 'true' ? 'bg-green-500' : 'bg-red-500'}`} />
+                    <span className="text-[10px] text-bright font-mono">FLAG_SESION: {localStorage.getItem('gym-pulse-session-active') || 'NULL'}</span>
                  </div>
               </div>
             </div>
