@@ -156,24 +156,9 @@ export default function App() {
 
   useEffect(() => {
     let unsubWorkouts: (() => void) | undefined;
-    let isInitialAuthCheck = true;
+    let unsubAuth: (() => void) | undefined;
+    let timer: NodeJS.Timeout | undefined;
     const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
-
-    // Direct check for demo mode to bypass any loading/auth delay
-    if (localStorage.getItem('gym-pulse-demo-mode') === 'true') {
-      const demoUser = {
-        uid: 'demo-athlete-id',
-        email: 'ricardo-demo@gympulse.com',
-        displayName: 'Ricardo (GymPulse)',
-        photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
-        emailVerified: true,
-        isAnonymous: false,
-        providerId: 'demo'
-      };
-      setUser(demoUser as any);
-      setLoading(false);
-      return;
-    }
 
     const initialize = async () => {
       // 1. Wait for Firebase Persistence context to be ready (critical for PWAs)
@@ -184,6 +169,22 @@ export default function App() {
       }
 
       if (!auth) {
+        setLoading(false);
+        return;
+      }
+
+      // If we are in demo mode, we completely skip normal auth initialization!
+      if (localStorage.getItem('gym-pulse-demo-mode') === 'true') {
+        const demoUser = {
+          uid: 'demo-athlete-id',
+          email: 'ricardo-demo@gympulse.com',
+          displayName: 'Ricardo (GymPulse)',
+          photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
+          emailVerified: true,
+          isAnonymous: false,
+          providerId: 'demo'
+        };
+        setUser(demoUser as any);
         setLoading(false);
         return;
       }
@@ -204,13 +205,28 @@ export default function App() {
       }
 
       // 3. Set up the long-term listener
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      unsubAuth = onAuthStateChanged(auth, async (currentUser) => {
+        // Double check demo mode inside listener as well to avoid race conditions!
+        if (localStorage.getItem('gym-pulse-demo-mode') === 'true') {
+          const demoUser = {
+            uid: 'demo-athlete-id',
+            email: 'ricardo-demo@gympulse.com',
+            displayName: 'Ricardo (GymPulse)',
+            photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
+            emailVerified: true,
+            isAnonymous: false,
+            providerId: 'demo'
+          };
+          setUser(demoUser as any);
+          setLoading(false);
+          return;
+        }
+
         setUser(currentUser);
         setLoading(false);
         
         if (currentUser) {
           localStorage.setItem('gym-pulse-session-active', 'true');
-          // Create user profile only if it doesn't exist yet to respect update security rules and prevent permission-denied
           try {
             const userDocRef = doc(db, 'users', currentUser.uid);
             const userDocSnap = await getDoc(userDocRef);
@@ -247,25 +263,19 @@ export default function App() {
           });
         }
       });
-
-      return unsubscribe;
     };
 
-    const unsubPromise = initialize();
+    initialize();
 
     // Safety timeout for loading
-    // If we believe we have a session, we wait longer to avoid showing the login screen prematurely
-    const hasSessionFlag = localStorage.getItem('gym-pulse-session-active') === 'true';
-    const safetyTimeout = isStandalone ? (hasSessionFlag ? 6000 : 3000) : (hasSessionFlag ? 4000 : 2000);
-
-    const timer = setTimeout(() => {
+    timer = setTimeout(() => {
       setLoading(false);
     }, isStandalone ? 4000 : 2000);
 
     return () => {
-      unsubPromise.then(unsub => unsub());
+      if (unsubAuth) unsubAuth();
       if (unsubWorkouts) unsubWorkouts();
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     };
   }, [setWorkouts]);
 
