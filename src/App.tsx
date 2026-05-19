@@ -159,6 +159,22 @@ export default function App() {
     let isInitialAuthCheck = true;
     const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
 
+    // Direct check for demo mode to bypass any loading/auth delay
+    if (localStorage.getItem('gym-pulse-demo-mode') === 'true') {
+      const demoUser = {
+        uid: 'demo-athlete-id',
+        email: 'ricardo-demo@gympulse.com',
+        displayName: 'Ricardo (GymPulse)',
+        photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
+        emailVerified: true,
+        isAnonymous: false,
+        providerId: 'demo'
+      };
+      setUser(demoUser as any);
+      setLoading(false);
+      return;
+    }
+
     const initialize = async () => {
       // 1. Wait for Firebase Persistence context to be ready (critical for PWAs)
       try {
@@ -314,7 +330,8 @@ export default function App() {
   };
 
   const handleSaveWorkout = async (exercise: Exercise) => {
-    if (user) {
+    const isDemo = localStorage.getItem('gym-pulse-demo-mode') === 'true';
+    if (user && !isDemo) {
       try {
         const workoutPath = `users/${user.uid}/workouts`;
         await addDoc(collection(db, workoutPath), {
@@ -324,8 +341,7 @@ export default function App() {
         });
       } catch (error) {
         console.error("Error saving to Firestore:", error);
-        handleFirestoreError(error, 'create', `users/${user.uid}/workouts`);
-        // Fallback to local state if firestore fails (will be synced via useLocalStorage anyway)
+        // Fallback to local state if firestore fails
         setWorkouts([...workouts, exercise]);
       }
     } else {
@@ -599,6 +615,30 @@ export default function App() {
                 <p className="label-caps !text-[9px] tracking-widest text-dim mt-2">
                   {isSignUp ? 'Crear nueva cuenta' : 'Ingresa a tu cuenta'}
                 </p>
+              </div>
+
+              <div className="mb-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const demoUser = {
+                      uid: 'demo-athlete-id',
+                      email: 'ricardo-demo@gympulse.com',
+                      displayName: 'Ricardo (GymPulse)',
+                      photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
+                      emailVerified: true,
+                      isAnonymous: false,
+                      providerId: 'demo'
+                    };
+                    localStorage.setItem('gym-pulse-session-active', 'true');
+                    localStorage.setItem('gym-pulse-demo-mode', 'true');
+                    setUser(demoUser as any);
+                    setShowAuthModal(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-3 bg-accent-recovery/15 border border-accent-recovery/35 hover:bg-accent-recovery/25 hover:border-accent-recovery/50 transition-all py-4.5 rounded-3xl text-[10px] font-bold uppercase tracking-widest text-accent-recovery shadow-[0_0_15px_rgba(34,197,94,0.1)]"
+                >
+                  ⚡ Entrar como Invitado (Modo Demo)
+                </button>
               </div>
 
               {authError && (
