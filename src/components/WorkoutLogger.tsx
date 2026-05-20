@@ -48,7 +48,7 @@ export const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({ onSave, recentWork
     <div className="space-y-6">
       <div className="geometric-card p-8 bg-surface border border-border-subtle">
         <h2 className="text-2xl technical-heading text-bright mb-8 flex items-center gap-3">
-          <div className="w-10 h-10 bg-accent-recovery rounded-xl flex items-center justify-center text-black">
+          <div className="w-10 h-10 bg-accent-recovery rounded-xl flex items-center justify-center text-black shadow-md shadow-accent-recovery/20">
             <Dumbbell size={20} />
           </div>
           Entrada Manual

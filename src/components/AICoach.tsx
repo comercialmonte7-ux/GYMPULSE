@@ -31,20 +31,20 @@ export const AICoach: React.FC = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-180px)] max-h-[700px] geometric-card bg-surface overflow-hidden border border-border-subtle shadow-2xl">
-      <div className="bg-bright text-black p-6 flex items-center justify-between border-b border-border-subtle">
+      <div className="bg-[#0c0c0e] text-bright p-6 flex items-center justify-between border-b border-border-subtle animate-fade-in">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center shadow-lg">
             <Bot size={24} className="text-accent-recovery" />
           </div>
           <div>
             <h2 className="technical-heading text-lg leading-none uppercase italic">Coach de IA de Pulse</h2>
             <div className="flex items-center gap-1.5 mt-1">
                 <span className="w-1.5 h-1.5 bg-accent-recovery rounded-full animate-pulse" />
-                <span className="label-caps !text-[7px] !text-black/60">Enlace Biométrico Activo</span>
+                <span className="label-caps !text-[7px] !text-lime-400 font-bold">Enlace Biométrico Activo</span>
             </div>
           </div>
         </div>
-        <div className="p-3 bg-black/5 rounded-full">
+        <div className="p-3 bg-zinc-900 border border-zinc-800 text-accent-recovery rounded-full shadow-inner">
             <Sparkles size={18} />
         </div>
       </div>
@@ -103,7 +103,7 @@ export const AICoach: React.FC = () => {
             <button
               onClick={handleSend}
               disabled={isLoading}
-              className="bg-bright text-black p-5 rounded-2xl hover:bg-white shadow-xl shadow-white/5 transition-all disabled:opacity-30 disabled:grayscale"
+              className="bg-lime-400 text-black p-5 rounded-2xl hover:bg-lime-500 shadow-xl shadow-lime-400/20 transition-all disabled:opacity-30 disabled:grayscale"
             >
               <Send size={24} />
             </button>

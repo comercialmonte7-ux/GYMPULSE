@@ -124,7 +124,7 @@ export const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workouts }) => {
                                                 className="bg-white/5 border border-white/5 p-5 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-white/10 transition-colors"
                                             >
                                                 <div className="flex items-center gap-5">
-                                                    <div className="w-12 h-12 bg-bright text-black rounded-xl flex items-center justify-center shrink-0 shadow-lg group-hover:bg-accent-recovery transition-colors">
+                                                    <div className="w-12 h-12 bg-lime-400 text-black rounded-xl flex items-center justify-center shrink-0 shadow-lg group-hover:bg-lime-500 transition-colors">
                                                         <Dumbbell size={20} />
                                                     </div>
                                                     <div>

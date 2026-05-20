@@ -1,7 +1,7 @@
 {
-  "name": "GymPulse",
-  "short_name": "GymPulse",
-  "id": "gym-pulse-pwa-v2",
+  "name": "AthlyPulse",
+  "short_name": "AthlyPulse",
+  "id": "athly-pulse-pwa-v1",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",

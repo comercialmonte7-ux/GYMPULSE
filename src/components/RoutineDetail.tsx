@@ -100,7 +100,7 @@ export const RoutineDetail: React.FC<RoutineDetailProps> = ({ routine, onBack, o
 
       <div className="bg-accent-recovery/5 border border-accent-recovery/20 p-8 rounded-3xl">
           <div className="flex items-start gap-4">
-              <div className="p-3 bg-white text-black rounded-2xl shadow-sm h-fit">
+              <div className="p-3 bg-lime-400 text-black rounded-2xl shadow-md shadow-lime-400/20 h-fit">
                   <ShieldCheck size={24} />
               </div>
               <div className="pt-1">

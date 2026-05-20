@@ -1,5 +1,5 @@
 // Simple Service Worker to improve PWA status and persistence on iOS
-const CACHE_NAME = 'gym-pulse-v2.0';
+const CACHE_NAME = 'athly-pulse-v1.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

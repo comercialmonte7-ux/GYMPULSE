@@ -2,5 +2,7 @@
   "name": "AthlyPulse",
   "description": "Tu asistente personal de gimnasio para aprender a usar máquinas, trackear tus rutinas y mejorar con IA junto a tu pareja.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

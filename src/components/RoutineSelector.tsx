@@ -20,8 +20,8 @@ export const RoutineSelector: React.FC<RoutineSelectorProps> = ({ onSelect }) =>
       <Section 
         title="Enfoque Muscular" 
         subtitle="Sesiones dedicadas a grupos específicos" 
-        icon={<Zap size={24} />} 
-        color="bg-accent-strain" 
+        icon={<Zap size={22} className="text-lime-400" />} 
+        color="bg-[#0c0c0e] border border-zinc-800/80 text-lime-400 shadow-md shadow-lime-400/5" 
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {isolated.map(routine => (
@@ -33,8 +33,8 @@ export const RoutineSelector: React.FC<RoutineSelectorProps> = ({ onSelect }) =>
       <Section 
         title="Plan Running 10K" 
         subtitle="Progresión de 4 semanas para consolidar distancia" 
-        icon={<TrendingUp size={24} />} 
-        color="bg-accent-recovery" 
+        icon={<TrendingUp size={22} className="text-lime-400" />} 
+        color="bg-[#0c0c0e] border border-zinc-800/80 text-lime-400 shadow-md shadow-lime-400/5" 
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {running.map(routine => (
@@ -46,8 +46,8 @@ export const RoutineSelector: React.FC<RoutineSelectorProps> = ({ onSelect }) =>
       <Section 
         title="Fuerza y Rendimiento" 
         subtitle="Cuerpo completo para deportistas avanzados" 
-        icon={<Activity size={24} />} 
-        color="bg-white text-black" 
+        icon={<Activity size={22} className="text-lime-400" />} 
+        color="bg-[#0c0c0e] border border-zinc-800/80 text-lime-400 shadow-md shadow-lime-400/5" 
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {power.map(routine => (
@@ -59,8 +59,8 @@ export const RoutineSelector: React.FC<RoutineSelectorProps> = ({ onSelect }) =>
       <Section 
         title="Fase 1: Adaptación" 
         subtitle="Recomendado para el primer mes" 
-        icon={<ShieldCheck size={20} />} 
-        color="bg-muted" 
+        icon={<ShieldCheck size={22} className="text-lime-400" />} 
+        color="bg-[#0c0c0e] border border-zinc-800/80 text-lime-400 shadow-md shadow-lime-400/5" 
       >
         <div className="grid grid-cols-1 gap-4">
           {adaptacion.map(routine => (
@@ -102,7 +102,11 @@ interface RoutineCardProps {
 
 const RoutineCard: React.FC<RoutineCardProps> = ({ routine, onSelect }) => {
   const targetLabel = routine.target === 'general' ? 'Unisex' : routine.target === 'hombre' ? 'Hombres' : 'Mujeres';
-  const targetColor = routine.target === 'general' ? 'bg-white text-black' : routine.target === 'hombre' ? 'bg-accent-recovery text-black' : 'bg-accent-sleep text-white';
+  const targetColor = routine.target === 'general' 
+    ? 'bg-zinc-900/80 text-zinc-300 border border-zinc-800' 
+    : routine.target === 'hombre' 
+      ? 'bg-lime-400/10 text-lime-400 border border-lime-400/30' 
+      : 'bg-lime-500/15 text-lime-300 border border-lime-500/20';
 
   return (
     <motion.div

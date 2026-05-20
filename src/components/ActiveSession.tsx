@@ -26,6 +26,7 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
   const [searchTerm, setSearchTerm] = useState('');
   const [isSessionPaused, setIsSessionPaused] = useState(false);
   const [sessionExercises, setSessionExercises] = useState<Exercise[]>([]);
+  const [showChrono, setShowChrono] = useState(false);
   
   const [performanceLog, setPerformanceLog] = useState<Record<number, { type: 'set' | 'rest', duration: number }[]>>({});
 
@@ -124,15 +125,49 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
         machineId: exerciseList[index].machineId,
         name: machine?.name || 'Ejercicio',
         date: new Date().toISOString(),
-        duration: exerciseTimer,
+        duration: exerciseTimer || 45,
         routineName: routine.name,
         sets: Array.from({ length: exerciseList[index].sets }).map(() => ({
-          reps: parseInt(exerciseList[index].reps) || 0,
+          reps: parseInt(exerciseList[index].reps) || 12,
           weight: 0,
           completed: true
         }))
       };
       setSessionExercises([...sessionExercises, newExercise]);
+    }
+  };
+
+  const handleInstantComplete = (index: number) => {
+    if (!isSessionActive) setIsSessionActive(true);
+    if (!completedSteps.includes(index)) {
+      setCompletedSteps([...completedSteps, index]);
+      const exMachine = MACHINES.find(m => m.id === exerciseList[index].machineId);
+      const newExercise: Exercise = {
+        id: Math.random().toString(36).substr(2, 9),
+        machineId: exerciseList[index].machineId,
+        name: exMachine?.name || 'Ejercicio',
+        date: new Date().toISOString(),
+        duration: 45,
+        routineName: routine.name,
+        sets: Array.from({ length: exerciseList[index].sets }).map(() => ({
+          reps: parseInt(exerciseList[index].reps) || 12,
+          weight: 0,
+          completed: true
+        }))
+      };
+      setSessionExercises(prev => {
+        const filtered = prev.filter(ex => ex.machineId !== exerciseList[index].machineId);
+        return [...filtered, newExercise];
+      });
+    }
+
+    if (index < exerciseList.length - 1) {
+      setTimeout(() => {
+        setCurrentStep(index + 1);
+        setIsExerciseActive(false);
+        setIsResting(false);
+        setExerciseTimer(0);
+      }, 300);
     }
   };
 
@@ -232,42 +267,79 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                 Finalizar Sesión
             </button>
         </div>
-      </div>
-
-      {/* Dynamic Content Area */}
+      </div>      {/* Dynamic Content Area */}
       <div className="flex-1 flex flex-col bg-main overflow-y-auto relative pb-24 md:pb-0">
-        {/* Timer Header */}
-        <div className="bg-surface/80 backdrop-blur-xl border-b border-border-subtle p-4 md:p-8 flex flex-wrap items-center justify-center gap-4 md:gap-16 sticky top-0 z-50">
-            <div className="flex flex-col items-center">
-                <span className="label-caps !text-[9px] mb-2">Duración Total de la Sesión</span>
-                <div className="text-3xl md:text-5xl technical-heading tabular-nums text-bright flex items-center gap-4">
-                    <Timer size={32} className="text-accent-recovery" />
-                    {formatTime(sessionTimer)}
-                </div>
+        
+        {/* Sleek, Adaptive Header of ActiveSession */}
+        <div className="bg-surface/80 backdrop-blur-xl border-b border-zinc-800/80 p-4 md:p-6 sticky top-0 z-50 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-6 bg-lime-400 rounded-full animate-pulse" />
+            <div>
+              <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 font-bold block">
+                {showChrono ? 'ENTRENAMIENTO CRONOMETRADO' : 'MODO DE ENTRENAMIENTO TRANQUILO'}
+              </span>
+              <span className="text-xs md:text-sm text-bright font-medium truncate max-w-[180px] md:max-w-xs block">
+                {routine.name}
+              </span>
             </div>
+          </div>
 
-            <div className="h-12 w-px bg-border-subtle hidden md:block" />
-
-            <div className="flex items-center gap-8">
-                <div className="flex flex-col items-center">
-                    <span className={`label-caps !text-[9px] mb-2 ${isResting ? 'text-accent-recovery' : 'text-accent-strain'}`}>
-                        {isResting ? 'Periodo de Descanso' : 'Intervalo de Trabajo'}
-                    </span>
-                    <div className={`text-4xl md:text-6xl technical-heading tabular-nums flex flex-col items-center leading-tight ${isResting ? 'text-accent-recovery' : 'text-accent-strain'}`}>
-                        {isResting ? formatTime(restTime) : formatTime(exerciseTimer)}
-                        {!isResting && isExerciseActive && (
-                            <div className="w-full h-1 bg-white/10 rounded-full mt-3 overflow-hidden">
-                                <motion.div 
-                                    className="h-full bg-accent-strain shadow-[0_0_10px_rgba(255,90,0,0.5)]"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${Math.min(100, (exerciseTimer / currentGoal) * 100)}%` }}
-                                />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+          <div className="flex items-center gap-3">
+            {/* Show/Hide Timers Toggle Button */}
+            <button
+              onClick={() => setShowChrono(!showChrono)}
+              className={`px-3 py-1.5 rounded-full text-[9px] font-mono font-bold uppercase transition-all flex items-center gap-1.5 border ${
+                showChrono 
+                  ? 'bg-lime-400/10 border-lime-400/40 text-lime-400' 
+                  : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
+              }`}
+            >
+              <Timer size={12} className={showChrono ? 'animate-spin' : ''} />
+              <span>{showChrono ? 'Cronómetros: ON' : 'Cronómetros: OFF'}</span>
+            </button>
+            
+            {showChrono && (
+              <div className="hidden sm:flex items-center gap-2 bg-zinc-950 px-3 py-1.5 rounded-full border border-zinc-800 text-lime-400 text-[10px] font-mono">
+                <span>{formatTime(sessionTimer)}</span>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Big Interactive Timers Panel (Only shown if showChrono is active) */}
+        {showChrono && (
+          <div className="bg-surface/40 border-b border-zinc-800/80 p-6 flex flex-wrap items-center justify-center gap-8 md:gap-16">
+              <div className="flex flex-col items-center">
+                  <span className="label-caps !text-[9px] mb-2 text-zinc-500">Duración Total de la Sesión</span>
+                  <div className="text-3xl md:text-4xl technical-heading tabular-nums text-bright flex items-center gap-3">
+                      <Timer size={24} className="text-lime-400 animate-pulse" />
+                      {formatTime(sessionTimer)}
+                  </div>
+              </div>
+
+              <div className="h-10 w-px bg-zinc-800 hidden md:block" />
+
+              <div className="flex items-center gap-8">
+                  <div className="flex flex-col items-center">
+                      <span className={`label-caps !text-[9px] mb-2 ${isResting ? 'text-lime-400' : 'text-orange-400'}`}>
+                          {isResting ? 'Periodo de Descanso' : 'Intervalo de Trabajo'}
+                      </span>
+                      <div className={`text-4xl md:text-5xl technical-heading tabular-nums flex flex-col items-center leading-tight ${isResting ? 'text-lime-400' : 'text-orange-400'}`}>
+                          {isResting ? formatTime(restTime) : formatTime(exerciseTimer)}
+                          {!isResting && isExerciseActive && (
+                              <div className="w-40 h-1 bg-white/10 rounded-full mt-2.5 overflow-hidden">
+                                  <motion.div 
+                                      className="h-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.5)]"
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${Math.min(100, (exerciseTimer / currentGoal) * 100)}%` }}
+                                  />
+                              </div>
+                          )}
+                      </div>
+                  </div>
+              </div>
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
             <motion.div 
@@ -275,78 +347,128 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex-1 overflow-y-auto p-6 md:p-16 flex flex-col items-center"
+                className="flex-1 overflow-y-auto p-6 md:p-12 flex flex-col items-center"
             >
-                <div className="max-w-2xl w-full space-y-12">
+                <div className="max-w-2xl w-full space-y-10">
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
-                            <span className="label-caps !text-accent-recovery">Bloque de Entrenamiento {String(currentStep + 1).padStart(2, '0')} <span className="text-muted">/</span> {String(exerciseList.length).padStart(2, '0')}</span>
+                            <span className="label-caps !text-lime-400">
+                              Bloque {String(currentStep + 1).padStart(2, '0')} <span className="text-zinc-600">/</span> {String(exerciseList.length).padStart(2, '0')}
+                            </span>
                             {machine && (
                                 <button 
                                     onClick={() => onShowMachineInfo(machine)}
-                                    className="bg-white/5 text-accent-recovery px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-accent-recovery/20 hover:bg-accent-recovery hover:text-black transition-all flex items-center gap-2"
+                                    className="bg-zinc-900 text-lime-400 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-zinc-800 hover:border-lime-400/30 hover:bg-lime-400/5 transition-all flex items-center gap-2"
                                 >
                                     <Info size={14} /> <span>Guía Técnica</span>
                                 </button>
                             )}
                         </div>
-                        <h1 className="text-4xl md:text-7xl technical-heading uppercase tracking-tighter leading-none">{machine?.name}</h1>
+                        
+                        <h1 className="text-3xl md:text-5xl technical-heading uppercase tracking-tighter leading-none text-white">
+                          {machine?.name}
+                        </h1>
                         
                         {machine && (
-                            <div className="w-full aspect-video md:aspect-[21/9] rounded-[2.5rem] overflow-hidden border border-border-subtle bg-surface">
+                            <div className="w-full aspect-video md:aspect-[21/10] rounded-[2rem] overflow-hidden border border-zinc-800/80 bg-[#070708]">
                                 <MachineAnimation machineId={machine.id} videoUrl={machine.videoUrl} />
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-center gap-4 bg-surface p-6 rounded-3xl border border-border-subtle">
-                                <div className="flex-1">
-                                    <span className="label-caps !text-[8px] mb-1 block">Meta de Trabajo</span>
-                                    <span className="text-xl technical-heading">{formatTime(currentGoal)}</span>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button onClick={() => adjustGoal(-10)} className="w-10 h-10 bg-white/5 border border-border-subtle rounded-xl flex items-center justify-center text-dim hover:text-bright transition-colors text-[10px] font-bold">-10s</button>
-                                    <button onClick={() => adjustGoal(10)} className="w-10 h-10 bg-white/5 border border-border-subtle rounded-xl flex items-center justify-center text-dim hover:text-bright transition-colors text-[10px] font-bold">+10s</button>
-                                </div>
+                        {/* Standard Goal Target (Always visible, instantly tells what to do!) */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-[#0c0c0e] p-6 rounded-2xl border border-zinc-800/80">
+                                <span className="label-caps !text-[9px] mb-1 block text-zinc-500">Miras de carga</span>
+                                <span className="text-3xl technical-heading text-bright tabular-nums">{currentDef.sets} <span className="text-xs font-mono text-zinc-500">SERIES</span></span>
                             </div>
-                            <div className="flex items-center gap-4 bg-accent-recovery/5 p-6 rounded-3xl border border-accent-recovery/20">
-                                <div className="flex-1">
-                                    <span className="label-caps !text-[8px] !text-accent-recovery mb-1 block">Intervalo de Recuperación</span>
-                                    <span className="text-xl technical-heading text-accent-recovery">{formatTime(currentRestGoal)}</span>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button onClick={() => adjustRestGoal(-10)} className="w-10 h-10 bg-white/5 border border-accent-recovery/20 rounded-xl flex items-center justify-center text-accent-recovery hover:bg-accent-recovery hover:text-black transition-all text-[10px] font-bold">-10s</button>
-                                    <button onClick={() => adjustRestGoal(10)} className="w-10 h-10 bg-white/5 border border-accent-recovery/20 rounded-xl flex items-center justify-center text-accent-recovery hover:bg-accent-recovery hover:text-black transition-all text-[10px] font-bold">+10s</button>
-                                </div>
+                            <div className="bg-[#0c0c0e] p-6 rounded-2xl border border-zinc-800/80">
+                                <span className="label-caps !text-[9px] mb-1 block text-zinc-500">Esfuerzo</span>
+                                <span className="text-3xl technical-heading text-lime-400 tabular-nums">{currentDef.reps} <span className="text-xs font-mono text-zinc-500">REPS</span></span>
                             </div>
                         </div>
 
-                        <p className="text-lg text-dim font-medium leading-relaxed italic border-l-2 border-accent-recovery/30 pl-6">
-                            "{currentDef.note || 'Enfócate en el compromiso neuromuscular y la desaceleración controlada.'}"
+                        <p className="text-md text-zinc-400 font-sans leading-relaxed italic border-l-2 border-lime-400/30 pl-4">
+                            "{currentDef.note || 'Ejecuta el movimiento con control biomecanico óptimo.'}"
                         </p>
                     </div>
 
-                    {/* Performance Timeline */}
+                    {/* Interactive Log Area */}
+                    <div className="bg-[#0c0c0e] rounded-2xl p-6 border border-zinc-800/55 space-y-6">
+                      <div className="space-y-1">
+                        <h3 className="text-xs font-bold uppercase tracking-wider font-mono text-white">
+                          ¿Cómo deseas registrar este bloque?
+                        </h3>
+                        <p className="text-xs text-zinc-400">
+                          Consigue mayor concentración neuromuscular interactuando menos con el teléfono.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Instant One-Tap Logger (No timer stress) */}
+                        <motion.button
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleInstantComplete(currentStep)}
+                          className="bg-lime-400 hover:bg-lime-500 text-black px-6 py-5 rounded-xl font-bold flex flex-col items-center justify-center gap-2 text-center transition-all group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck size={18} />
+                            <span className="text-xs uppercase tracking-widest font-black">Hecho con 1 Toque</span>
+                          </div>
+                          <span className="text-[9px] text-zinc-900/70 font-mono tracking-tight leading-none">
+                            Marca como listo y pasa al siguiente
+                          </span>
+                        </motion.button>
+
+                        {/* Chronometer Log Toggle */}
+                        <motion.button
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => {
+                            setShowChrono(true);
+                            startExercise();
+                          }}
+                          className="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-700 px-6 py-5 rounded-xl font-bold flex flex-col items-center justify-center gap-2 text-center transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Timer size={18} className="text-lime-400" />
+                            <span className="text-xs uppercase tracking-widest font-bold">Usar Cronómetro</span>
+                          </div>
+                          <span className="text-[9px] text-zinc-500 font-mono tracking-tight leading-none">
+                            Iniciar serie interactiva tiempo a tiempo
+                          </span>
+                        </motion.button>
+                      </div>
+
+                      {completedSteps.includes(currentStep) && (
+                        <div className="bg-lime-400/10 border border-lime-400/30 p-4 rounded-xl flex items-center justify-center gap-3 text-lime-400 animate-fade-in">
+                          <ShieldCheck size={18} className="text-lime-400 animate-pulse" />
+                          <span className="text-[10px] font-bold uppercase tracking-widest font-mono">
+                            ¡Marcado como Completado!
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Performance Timeline (Only visible if they use chronometer and logs get saved) */}
                     {(performanceLog[currentStep] || []).length > 0 && (
-                        <div className="bg-surface rounded-3xl p-8 border border-border-subtle">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="label-caps !text-accent-recovery">Rendimiento del Bloque Activo</h3>
-                                <div className="h-px bg-border-subtle flex-1 ml-6" />
+                        <div className="bg-zinc-950 rounded-2xl p-6 border border-zinc-900">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="label-caps !text-lime-400">Rendimiento Histórico Activo</h3>
+                                <div className="h-px bg-zinc-900 flex-1 ml-4" />
                             </div>
-                            <div className="flex flex-wrap gap-4">
+                            <div className="flex flex-wrap gap-3">
                                 {performanceLog[currentStep]?.map((event, i) => (
                                     <div 
                                         key={i} 
-                                        className={`px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase flex items-center gap-3 border ${
+                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-mono font-bold uppercase flex items-center gap-2 border ${
                                             event.type === 'set' 
-                                            ? 'bg-accent-strain/10 border-accent-strain/30 text-accent-strain' 
-                                            : 'bg-accent-recovery/10 border-accent-recovery/30 text-accent-recovery'
+                                            ? 'bg-orange-400/10 border-orange-400/20 text-orange-400' 
+                                            : 'bg-lime-400/10 border-lime-400/20 text-lime-400'
                                         }`}
                                     >
-                                        <div className={`w-2 h-2 rounded-full ${event.type === 'set' ? 'bg-accent-strain' : 'bg-accent-recovery'}`} />
-                                        <span className="opacity-40">#{i+1}</span>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${event.type === 'set' ? 'bg-orange-400' : 'bg-lime-400'}`} />
+                                        <span>#{i+1}</span>
                                         {event.type === 'set' ? `SERIE ${performanceLog[currentStep].filter((e, idx) => e.type === 'set' && idx <= i).length}` : 'DESC.'}
-                                        <span className="opacity-30">|</span>
+                                        <span className="opacity-20">|</span>
                                         <span className="font-bold">{formatTime(event.duration)}</span>
                                     </div>
                                 ))}
@@ -354,69 +476,35 @@ export const ActiveSession: React.FC<ActiveSessionProps> = ({ routine, onClose, 
                         </div>
                     )}
 
-                    {!isExerciseActive && !completedSteps.includes(currentStep) ? (
-                        <motion.div 
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="bg-accent-recovery/5 p-12 rounded-[3.5rem] text-center space-y-8 border border-accent-recovery/20 cursor-pointer transition-all" 
-                            onClick={startExercise}
-                        >
-                            <div className="w-24 h-24 bg-white text-black rounded-full flex items-center justify-center mx-auto shadow-2xl">
-                                <Play size={40} fill="black" />
-                            </div>
-                            <div>
-                                <h3 className="text-2xl technical-heading uppercase italic tracking-tight">¿Iniciar Intervalo de Trabajo?</h3>
-                                <p className="label-caps !text-[10px] mt-2 opacity-50">Presiona para sincronizar el feedback neuromuscular</p>
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="bg-surface p-10 rounded-[3rem] border border-border-subtle">
-                                <span className="label-caps !text-[9px] mb-2 block">Meta de Series</span>
-                                <span className="text-6xl technical-heading text-bright tabular-nums">{currentDef.sets}</span>
-                            </div>
-                            <div className="bg-accent-strain/10 p-10 rounded-[3rem] border border-accent-strain/30 text-accent-strain">
-                                <span className="label-caps !text-[9px] !text-accent-strain mb-2 block">Meta de Reps</span>
-                                <span className="text-6xl technical-heading tabular-nums">{currentDef.reps}</span>
-                            </div>
-                        </div>
-                    )}
-
-                    {(isExerciseActive || isResting || completedSteps.includes(currentStep)) && (
-                        <div className="pt-10 flex flex-col gap-4">
-                            {!completedSteps.includes(currentStep) && (
-                                <button 
-                                    onClick={isResting ? startExercise : handleStopSerie}
-                                    className={`w-full py-10 rounded-[3.5rem] transition-all flex flex-col items-center justify-center gap-2 group ${
-                                        isResting
-                                        ? 'bg-accent-recovery text-black hover:brightness-110'
-                                        : 'bg-accent-strain text-white shadow-lg shadow-accent-strain/20 hover:scale-[1.02]'
-                                    }`}
-                                >
-                                    <span className="flex items-center gap-4 technical-heading text-xl">
-                                        {isResting ? 'Iniciar Siguiente Intervalo' : 'Finalizar Intervalo'}
-                                        {isResting ? <Play size={28} fill="black" /> : <Pause size={28} fill="white" />}
-                                    </span>
-                                    <span className="label-caps !text-[8px] !text-black/60 group-hover:!text-black transition-all">
-                                        {isResting ? 'Conclusión de la fase de recuperación' : 'Los datos de telemetría serán archivados'}
-                                    </span>
-                                </button>
-                            )}
+                    {/* Traditional control triggers */}
+                    {showChrono && (isExerciseActive || isResting) && (
+                        <div className="pt-6 flex flex-col gap-3">
+                            <button 
+                                onClick={isResting ? startExercise : handleStopSerie}
+                                className={`w-full py-6 rounded-2xl transition-all flex flex-col items-center justify-center gap-1 group ${
+                                    isResting
+                                    ? 'bg-lime-400 text-black hover:bg-lime-500'
+                                    : 'bg-orange-500 text-white shadow-lg shadow-orange-500/10 hover:scale-[1.01]'
+                                }`}
+                            >
+                                <span className="flex items-center gap-3 technical-heading text-md">
+                                    {isResting ? 'Iniciar Siguiente Intervalo' : 'Finalizar Intervalo de Trabajo'}
+                                    {isResting ? <Play size={18} fill="black" /> : <Pause size={18} fill="white" />}
+                                </span>
+                                <span className="text-[8px] font-mono uppercase tracking-wider text-black/60 group-hover:text-black transition-all">
+                                    {isResting ? 'Fase de recuperación activa' : 'Guardar intervalo de esfuerzo del músculo'}
+                                </span>
+                            </button>
 
                             <button 
                                 onClick={() => toggleComplete(currentStep)}
-                                className={`w-full py-6 rounded-3xl transition-all flex items-center justify-center gap-3 label-caps ${
+                                className={`w-full py-4 rounded-xl transition-all flex items-center justify-center gap-2 label-caps text-[9px] ${
                                     completedSteps.includes(currentStep)
-                                    ? 'bg-accent-recovery/20 text-accent-recovery border border-accent-recovery/30'
-                                    : 'bg-surface text-muted border border-border-subtle hover:text-bright hover:border-white/20'
+                                    ? 'bg-lime-400/15 text-lime-400 border border-lime-400/20'
+                                    : 'bg-zinc-900 text-zinc-500 border border-zinc-800 hover:text-white hover:border-zinc-700'
                                 }`}
                             >
-                                {completedSteps.includes(currentStep) ? (
-                                    <>
-                                        <ShieldCheck size={18} />
-                                        Bloque Finalizado (Siguiente Protocolo)
-                                    </>
-                                ) : 'Archivar Bloque como Concluido'}
+                                {completedSteps.includes(currentStep) ? '✓ Ejercicio Archivados' : 'Archivar Ejercicio Completo como Concluido'}
                             </button>
                         </div>
                     )}

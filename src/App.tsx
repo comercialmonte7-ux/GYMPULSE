@@ -27,14 +27,12 @@ import {
   ShieldCheck, 
   Play, 
   Clock, 
-  ArrowLeft,
-  Mail,
-  Lock
+  ArrowLeft 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, googleProvider, db, handleFirestoreError, authInitialized } from './lib/firebase';
-import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, User, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
-import { collection, onSnapshot, addDoc, query, orderBy, setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, User, GoogleAuthProvider } from 'firebase/auth';
+import { collection, onSnapshot, addDoc, query, orderBy, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dash' | 'routines' | 'history' | 'coach' | 'machines'>('dash');
@@ -45,96 +43,6 @@ export default function App() {
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
   const [activeSessionRoutine, setActiveSessionRoutine] = useState<Routine | null>(null);
   const [showLogger, setShowLogger] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authEmail, setAuthEmail] = useState('');
-  const [authPassword, setAuthPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [emailAuthLoading, setEmailAuthLoading] = useState(false);
-  const [authError, setAuthError] = useState('');
-  const [authDisplayName, setAuthDisplayName] = useState('');
-
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!auth) return;
-    setAuthError('');
-    setEmailAuthLoading(true);
-
-    try {
-      if (isSignUp) {
-        const userCredential = await createUserWithEmailAndPassword(auth, authEmail, authPassword);
-        const name = authDisplayName.trim() || 'GymPulse Athlete';
-        await updateProfile(userCredential.user, {
-          displayName: name,
-          photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png'
-        });
-        
-        try {
-          await setDoc(doc(db, 'users', userCredential.user.uid), {
-            uid: userCredential.user.uid,
-            email: userCredential.user.email,
-            displayName: name,
-            photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
-            lastLogin: serverTimestamp()
-          });
-        } catch (fsErr) {
-          console.error("Firestore user creation error:", fsErr);
-        }
-
-        setUser({
-          ...userCredential.user,
-          displayName: name,
-          photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png'
-        } as any);
-        setShowAuthModal(false);
-      } else {
-        await signInWithEmailAndPassword(auth, authEmail, authPassword);
-        setShowAuthModal(false);
-      }
-      setAuthEmail('');
-      setAuthPassword('');
-      setAuthDisplayName('');
-    } catch (err: any) {
-      console.error("Email auth error:", err);
-      if (err.code === 'auth/email-already-in-use') {
-        setAuthError('Este correo electrónico ya está registrado.');
-      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
-        setAuthError('Correo o contraseña incorrectos.');
-      } else if (err.code === 'auth/weak-password') {
-        setAuthError('La contraseña debe tener al menos 6 caracteres.');
-      } else if (err.code === 'auth/invalid-email') {
-        setAuthError('El correo electrónico no es válido.');
-      } else {
-        setAuthError(err.message || 'Ocurrió un error al intentar autenticar.');
-      }
-    } finally {
-      setEmailAuthLoading(false);
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!auth) return;
-    if (!authEmail.trim()) {
-      setAuthError('Por favor, escribe tu correo arriba para restablecer la contraseña.');
-      return;
-    }
-    setAuthError('');
-    setEmailAuthLoading(true);
-    try {
-      await sendPasswordResetEmail(auth, authEmail.trim());
-      alert(`📧 CORREO ENVIADO:\n\nSe ha enviado un enlace de restablecimiento a:\n👉 ${authEmail}\n\nRevisa tu bandeja de entrada o correo no deseado (SPAM) para cambiar tu contraseña e iniciar sesión.`);
-    } catch (err: any) {
-      console.error("Password reset error:", err);
-      if (err.code === 'auth/user-not-found') {
-        setAuthError('No existe ningún usuario con este correo electrónico.');
-      } else if (err.code === 'auth/invalid-email') {
-        setAuthError('El correo electrónico no es válido.');
-      } else {
-        setAuthError(err.message || 'Error al intentar enviar el correo de restablecimiento.');
-      }
-    } finally {
-      setEmailAuthLoading(false);
-    }
-  };
 
   const showAuthError = (error: any) => {
     console.error("Auth Error:", error);
@@ -156,8 +64,7 @@ export default function App() {
 
   useEffect(() => {
     let unsubWorkouts: (() => void) | undefined;
-    let unsubAuth: (() => void) | undefined;
-    let timer: NodeJS.Timeout | undefined;
+    let isInitialAuthCheck = true;
     const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches;
 
     const initialize = async () => {
@@ -169,22 +76,6 @@ export default function App() {
       }
 
       if (!auth) {
-        setLoading(false);
-        return;
-      }
-
-      // If we are in demo mode, we completely skip normal auth initialization!
-      if (localStorage.getItem('gym-pulse-demo-mode') === 'true') {
-        const demoUser = {
-          uid: 'demo-athlete-id',
-          email: 'ricardo-demo@gympulse.com',
-          displayName: 'Ricardo (GymPulse)',
-          photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
-          emailVerified: true,
-          isAnonymous: false,
-          providerId: 'demo'
-        };
-        setUser(demoUser as any);
         setLoading(false);
         return;
       }
@@ -205,42 +96,22 @@ export default function App() {
       }
 
       // 3. Set up the long-term listener
-      unsubAuth = onAuthStateChanged(auth, async (currentUser) => {
-        // Double check demo mode inside listener as well to avoid race conditions!
-        if (localStorage.getItem('gym-pulse-demo-mode') === 'true') {
-          const demoUser = {
-            uid: 'demo-athlete-id',
-            email: 'ricardo-demo@gympulse.com',
-            displayName: 'Ricardo (GymPulse)',
-            photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
-            emailVerified: true,
-            isAnonymous: false,
-            providerId: 'demo'
-          };
-          setUser(demoUser as any);
-          setLoading(false);
-          return;
-        }
-
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
         setUser(currentUser);
         setLoading(false);
         
         if (currentUser) {
-          localStorage.setItem('gym-pulse-session-active', 'true');
+          // Create or update user profile
           try {
-            const userDocRef = doc(db, 'users', currentUser.uid);
-            const userDocSnap = await getDoc(userDocRef);
-            if (!userDocSnap.exists()) {
-              await setDoc(userDocRef, {
-                uid: currentUser.uid,
-                email: currentUser.email,
-                displayName: currentUser.displayName || 'GymPulse Athlete',
-                photoURL: currentUser.photoURL || 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
-                lastLogin: serverTimestamp()
-              });
-            }
+            await setDoc(doc(db, 'users', currentUser.uid), {
+              uid: currentUser.uid,
+              email: currentUser.email,
+              displayName: currentUser.displayName,
+              photoURL: currentUser.photoURL,
+              lastLogin: serverTimestamp()
+            }, { merge: true });
           } catch (error) {
-            console.error("Error verifying/creating user profile:", error);
+            console.error("Error updating user profile:", error);
           }
 
           // Sync workouts
@@ -263,19 +134,25 @@ export default function App() {
           });
         }
       });
+
+      return unsubscribe;
     };
 
-    initialize();
+    const unsubPromise = initialize();
 
     // Safety timeout for loading
-    timer = setTimeout(() => {
+    // If we believe we have a session, we wait longer to avoid showing the login screen prematurely
+    const hasSessionFlag = localStorage.getItem('athly-pulse-session-active') === 'true';
+    const safetyTimeout = isStandalone ? (hasSessionFlag ? 6000 : 3000) : (hasSessionFlag ? 4000 : 2000);
+
+    const timer = setTimeout(() => {
       setLoading(false);
     }, isStandalone ? 4000 : 2000);
 
     return () => {
-      if (unsubAuth) unsubAuth();
+      unsubPromise.then(unsub => unsub());
       if (unsubWorkouts) unsubWorkouts();
-      if (timer) clearTimeout(timer);
+      clearTimeout(timer);
     };
   }, [setWorkouts]);
 
@@ -328,20 +205,10 @@ export default function App() {
     }
   };
 
-  const handleLogout = async () => {
-    if (!auth) return;
-    try {
-      await signOut(auth);
-      localStorage.removeItem('gym-pulse-session-active');
-      setUser(null);
-    } catch (e) {
-      console.error("Logout error:", e);
-    }
-  };
+  const handleLogout = () => signOut(auth);
 
   const handleSaveWorkout = async (exercise: Exercise) => {
-    const isDemo = localStorage.getItem('gym-pulse-demo-mode') === 'true';
-    if (user && !isDemo) {
+    if (user) {
       try {
         const workoutPath = `users/${user.uid}/workouts`;
         await addDoc(collection(db, workoutPath), {
@@ -351,7 +218,8 @@ export default function App() {
         });
       } catch (error) {
         console.error("Error saving to Firestore:", error);
-        // Fallback to local state if firestore fails
+        handleFirestoreError(error, 'create', `users/${user.uid}/workouts`);
+        // Fallback to local state if firestore fails (will be synced via useLocalStorage anyway)
         setWorkouts([...workouts, exercise]);
       }
     } else {
@@ -374,8 +242,8 @@ export default function App() {
       <header className="bg-main/80 backdrop-blur-md border-b border-border-subtle p-4 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center font-display font-bold text-xl">G</div>
-            <h1 className="text-xl technical-heading uppercase tracking-tighter">GymPulse <span className="text-dim text-xs lowercase font-mono">v2.0</span></h1>
+            <div className="w-10 h-10 bg-lime-400 text-black rounded-xl flex items-center justify-center font-display font-bold text-xl shadow-lg shadow-lime-400/20">A</div>
+            <h1 className="text-xl technical-heading uppercase tracking-tighter">AthlyPulse <span className="text-lime-400 text-xs lowercase font-mono">v1.2</span></h1>
           </div>
           
           <div className="flex items-center gap-4">
@@ -387,7 +255,7 @@ export default function App() {
                  </div>
                  <button onClick={handleLogout} className="group relative">
                    <img 
-                      src={user.photoURL || 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png'} 
+                      src={user.photoURL || ''} 
                       className="w-8 h-8 rounded-full border border-border-subtle group-hover:border-white transition-colors" 
                       alt="Avatar"
                       referrerPolicy="no-referrer"
@@ -396,7 +264,7 @@ export default function App() {
                </div>
             ) : (
               <button 
-                onClick={() => setShowAuthModal(true)}
+                onClick={handleLogin}
                 disabled={loginLoading}
                 className={`flex items-center gap-2 bg-surface text-bright px-4 py-2 rounded-full border border-border-subtle hover:border-white/20 transition-all text-[10px] font-bold uppercase tracking-widest ${loginLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
@@ -419,10 +287,10 @@ export default function App() {
 
       {loading && (
         <div className="fixed inset-0 bg-main z-[100] flex flex-col items-center justify-center p-6 text-center">
-          <div className="w-16 h-16 bg-white text-black rounded-2xl flex items-center justify-center font-display font-bold text-3xl mb-8 animate-pulse shadow-2xl shadow-white/10">G</div>
+          <div className="w-16 h-16 bg-white text-black rounded-2xl flex items-center justify-center font-display font-bold text-3xl mb-8 animate-pulse shadow-2xl shadow-white/10">A</div>
           <div className="w-12 h-12 border-2 border-accent-recovery border-t-transparent rounded-full animate-spin mb-6" />
           <h2 className="technical-heading text-xl uppercase tracking-widest text-bright">Sincronizando</h2>
-          <p className="label-caps !text-[10px] text-dim mt-2 tracking-[0.2em]">Verificando Telemetría Biométrica...</p>
+          <p className="label-caps !text-[10px] text-dim mt-2 tracking-[0.2em]">Verificando Telemetría Biometrica...</p>
           
           <button 
             onClick={() => window.location.reload()}
@@ -435,7 +303,13 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-6 pb-32">
-        {activeTab === 'dash' && <Dashboard workouts={workouts} onNavigate={setActiveTab} />}
+        {activeTab === 'dash' && (
+          <Dashboard 
+            workouts={workouts} 
+            onNavigate={setActiveTab} 
+            onSaveWorkout={handleSaveWorkout} 
+          />
+        )}
         
         {activeTab === 'routines' && (
           selectedRoutine ? (
@@ -489,7 +363,7 @@ export default function App() {
                 if (tab.id !== 'routines') setSelectedRoutine(null);
             }}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 rounded-full font-bold uppercase text-[10px] tracking-widest transition-all ${
-              activeTab === tab.id ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-muted hover:text-bright'
+              activeTab === tab.id ? 'bg-lime-400 text-black shadow-lg shadow-lime-400/20' : 'text-muted hover:text-bright'
             }`}
           >
             <tab.icon size={18} />
@@ -588,207 +462,6 @@ export default function App() {
                   className="geometric-button-primary w-full py-6 text-xl"
                 >
                   Confirmar Entrada
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Auth Modal */}
-      <AnimatePresence>
-        {showAuthModal && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAuthModal(false)}
-              className="absolute inset-0 bg-black/85 backdrop-blur-md"
-            />
-            <motion.div
-              initial={{ scale: 0.95, y: 30, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 30, opacity: 0 }}
-              className="relative bg-surface rounded-[40px] p-8 md:p-12 max-w-md w-full z-10 border border-border-subtle shadow-2xl"
-            >
-              <button 
-                onClick={() => setShowAuthModal(false)}
-                className="absolute top-8 right-8 p-3 text-dim hover:text-bright hover:bg-white/5 rounded-full transition-all"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="mb-8 text-center">
-                <div className="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center font-display font-bold text-2xl mx-auto mb-4">G</div>
-                <h2 className="text-3xl technical-heading uppercase tracking-tighter">GymPulse Auth</h2>
-                <p className="label-caps !text-[9px] tracking-widest text-dim mt-2">
-                  {isSignUp ? 'Crear nueva cuenta' : 'Ingresa a tu cuenta'}
-                </p>
-              </div>
-
-              <div className="mb-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const demoUser = {
-                      uid: 'demo-athlete-id',
-                      email: 'ricardo-demo@gympulse.com',
-                      displayName: 'Ricardo (GymPulse)',
-                      photoURL: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
-                      emailVerified: true,
-                      isAnonymous: false,
-                      providerId: 'demo'
-                    };
-                    localStorage.setItem('gym-pulse-session-active', 'true');
-                    localStorage.setItem('gym-pulse-demo-mode', 'true');
-                    setUser(demoUser as any);
-                    setShowAuthModal(false);
-                  }}
-                  className="w-full flex items-center justify-center gap-3 bg-accent-recovery/15 border border-accent-recovery/35 hover:bg-accent-recovery/25 hover:border-accent-recovery/50 transition-all py-4.5 rounded-3xl text-[10px] font-bold uppercase tracking-widest text-accent-recovery shadow-[0_0_15px_rgba(34,197,94,0.1)]"
-                >
-                  ⚡ Entrar como Invitado (Modo Demo)
-                </button>
-              </div>
-
-              {authError && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl text-xs mb-6 flex items-start gap-2.5">
-                  <span className="font-bold text-sm leading-none mt-0.5">!</span>
-                  <span>{authError}</span>
-                </div>
-              )}
-
-              <form onSubmit={handleEmailAuth} className="space-y-4">
-                {isSignUp && (
-                  <div className="space-y-1.5">
-                    <label className="label-caps !text-[8px] tracking-wider pl-1">Nombre Completo</label>
-                    <div className="relative">
-                      <input 
-                        type="text"
-                        required
-                        placeholder="TU NOMBRE"
-                        value={authDisplayName}
-                        onChange={(e) => setAuthDisplayName(e.target.value)}
-                        className="w-full bg-main border border-border-subtle rounded-2xl px-5 py-4 text-xs font-mono placeholder:text-muted focus:border-accent-recovery outline-none text-bright transition-all pl-12 uppercase"
-                      />
-                      <UserIcon size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-1.5">
-                  <label className="label-caps !text-[8px] tracking-wider pl-1">Correo Electrónico</label>
-                  <div className="relative">
-                    <input 
-                      type="email"
-                      required
-                      placeholder="TU@EMAIL.COM"
-                      value={authEmail}
-                      onChange={(e) => setAuthEmail(e.target.value)}
-                      className="w-full bg-main border border-border-subtle rounded-2xl px-5 py-4 text-xs font-mono placeholder:text-muted focus:border-accent-recovery outline-none text-bright transition-all pl-12 lowercase"
-                    />
-                    <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="label-caps !text-[8px] tracking-wider pl-1">Contraseña</label>
-                  <div className="relative">
-                    <input 
-                      type="password"
-                      required
-                      placeholder="••••••••"
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                      className="w-full bg-main border border-border-subtle rounded-2xl px-5 py-4 text-xs font-mono placeholder:text-muted focus:border-accent-recovery outline-none text-bright transition-all pl-12"
-                    />
-                    <Lock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
-                  </div>
-                </div>
-
-                {!isSignUp && (
-                  <div className="text-right mt-3">
-                    <button
-                      type="button"
-                      onClick={handleForgotPassword}
-                      className="text-[9px] font-bold uppercase tracking-widest text-accent-recovery hover:text-bright transition-colors"
-                    >
-                      ¿Olvidaste tu contraseña?
-                    </button>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={emailAuthLoading}
-                  className="geometric-button-primary w-full py-4 text-xs mt-6 flex items-center justify-center gap-2"
-                >
-                  {emailAuthLoading ? (
-                    <div className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                  ) : isSignUp ? 'Registrar y Sincronizar' : 'Iniciar Sesión'}
-                </button>
-              </form>
-
-              <div className="relative my-8">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border-subtle"></div></div>
-                <div className="relative flex justify-center text-[8px] uppercase tracking-widest"><span className="bg-surface px-4 text-muted">o continúa con</span></div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  handleLogin();
-                  setShowAuthModal(false);
-                }}
-                disabled={loginLoading}
-                className="w-full flex items-center justify-center gap-3 bg-white/5 border border-border-subtle hover:border-white/20 transition-all py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-bright mb-6"
-              >
-                {loginLoading ? (
-                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <LogIn size={14} className="text-accent-recovery" />
-                )}
-                <span>Google Auth</span>
-              </button>
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setAuthError('');
-                  }}
-                  className="text-[9px] font-bold uppercase tracking-widest text-dim hover:text-bright transition-colors"
-                >
-                  {isSignUp ? '¿Ya tienes cuenta? Inicia Sesión' : '¿No tienes cuenta? Regístrate aquí'}
-                </button>
-              </div>
-
-              <div className="bg-accent-recovery/5 border border-accent-recovery/20 p-4 rounded-2xl mt-8 text-[10px] text-accent-recovery leading-relaxed italic text-center">
-                💡 <strong>Consejo para iPhone (PWA):</strong> Usar tu correo y contraseña te permite ingresar de inmediato sin salir de la pantalla de inicio.
-              </div>
-
-              <div className="text-center mt-6">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (confirm("¿Deseas forzar la limpieza de caché de la app para cargar la última versión v2.0?")) {
-                      localStorage.clear();
-                      sessionStorage.clear();
-                      if ('serviceWorker' in navigator) {
-                        const regs = await navigator.serviceWorker.getRegistrations();
-                        for (let r of regs) await r.unregister();
-                      }
-                      if ('caches' in window) {
-                        const keys = await caches.keys();
-                        for (let k of keys) await caches.delete(k);
-                      }
-                      window.location.reload();
-                    }
-                  }}
-                  className="text-[8px] font-bold uppercase tracking-widest text-red-500/60 hover:text-red-400 transition-colors"
-                >
-                  ⚠️ Limpiar Caché e Instalar v2.0
                 </button>
               </div>
             </motion.div>
